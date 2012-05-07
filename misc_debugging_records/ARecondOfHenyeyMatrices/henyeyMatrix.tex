@@ -1,0 +1,62 @@
+\documentclass[manuscript]{aastex}
+\usepackage{graphics}      % standard graphics specifications
+\usepackage{graphicx}      % alternative graphics specifications
+\usepackage{longtable}     % helps with long table options
+\usepackage{url}           % for on-line citations
+\usepackage{bm}            % special 'bold-math' package
+\usepackage[usenames]{color}
+\usepackage[OT2,T1]{fontenc}
+%\usepackage{fancyhdr}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{marvosym}   % astrological symbols
+\usepackage{wasysym}    % astrological symbols
+\usepackage{ccaption}
+\usepackage{float}
+%\usepackage{setspace}
+\usepackage{multirow}
+
+\definecolor{plum}{rgb}{0.5,0.1,0.5}
+\definecolor{brightpurple}{rgb}{0.7,0.2,0.7}
+\definecolor{orange}{rgb}{1,0.25,0}
+\definecolor{green}{rgb}{0.3,0.7,0.2}
+% `ans' is short for `answer'
+\newcommand{\answer}[1]{\textcolor{orange}{\bf [#1]}}
+\newcommand{\question}[1]{\textcolor{brightpurple}{\bf [#1]}}
+\newcommand{\response}[1]{\textcolor{green}{\bf [#1]}}
+
+\renewcommand{\sun}{\odot}
+
+
+
+%-------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                 %%%%%
+% And now, begin the document...  %%%%%
+%                                 %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%-------------------------------------------------
+\section*{The Henyey Matrix looks like...}
+$
+ \begin{array}{llllllllllll}
+    -9.1  &      -32  &       0   &        0   &        1    &       0    &       0    &       0    &       0   &        0   &        0   &        0      \\     
+-0.012    &  1        &   0       &    0.44    &    0        &   0        &   0        &   0        &   0       &    0       &    0       &    0          \\ 
+-1.2e+03  &  0        &   1       &    3.6e+03 &    -3.6e+03 &   -3.6e+03 &   -3.6e+03 &   -3.6e+03 &   0       &    0       &    0       &    0          \\ 
+-0.0021   &  -0.0083  &   0.017   &    -1      &    0        &   0        &   9e-06    &   1        &   0       &    0       &    0       &    0          \\ 
+0         &  0        &   0       &    0       &    -3       &   -7.9     &   0        &   0        &   1       &    0       &    0       &    0          \\ 
+0         &  -1       &   0       &    0       &    -0.015   &   1        &   0        &   0.44     &   0       &    0       &    0       &    0          \\ 
+-2e+07    &  -2e+07   &   -2e+07  &    -2e+07  &    -6.4e+06 &   0        &   1        &   2e+07    &   -2e+07  &    -2e+07  &    -2e+07  &    -2e+07     \\ 
+0         &  0        &   0       &    0       &    -0.13    &   -0.54    &   2.2e-06  &   -1       &   0       &    0       &    0.13    &    0.6        \\ 
+0         &  0        &   0       &    0       &    0        &   0        &   0        &   0        &   1       &    2       &    0       &    0          \\ 
+0         &  0        &   0       &    0       &    0        &   -1       &   0        &   0        &   -0.13   &    1       &    0       &    0.83       \\ 
+0         &  0        &   0       &    0       &    0        &   -1.2e+05 &   -1.2e+05 &   -1.2e+05 &   -3.6e+04&    0       &    1       &    1.2e+05    \\ 
+0         &  0        &   0       &    0       &    0        &   0        &   0        &   0        &   0       &    0.5     &    -0.25   &    1          
+
+
+\end{pmatrix}
+$
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
