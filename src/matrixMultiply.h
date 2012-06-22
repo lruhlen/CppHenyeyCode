@@ -11,6 +11,8 @@
 
 using namespace std;
 
+double matrixMultiply(OneD &matrixA, OneD &matrixB);
+
 struct vec2d matrixMultiply(struct vec2d &matrixA, struct vec2d &matrixB);
 
 vector< vector<double> > matrixMultiply(vector<vector <double> > &matrixA, vector< vector<double> > &matrixB);

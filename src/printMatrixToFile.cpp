@@ -22,7 +22,7 @@ void printMatrixToFile(FILE *outfile, vec3d &matrix)
 
 	      if (j < (matrix[0][0].size()-1))
 		{
-		  fprintf(outfile,",\t");
+		  fprintf(outfile,"\n");
 		}
 	      else
 		{
@@ -30,19 +30,18 @@ void printMatrixToFile(FILE *outfile, vec3d &matrix)
 		}
 	    }
 	}
-      fprintf(outfile,"}\n");
+            fprintf(outfile,"}\n");
     }
-  fprintf(outfile,"}\n");
+    fprintf(outfile,"}\n");
 }
 
 
 void printMatrixToFile(FILE *outfile, vec2d &matrix)
 {  
-  fprintf(outfile,"{");
 
   for (int i=0; i<matrix.size(); i++)
     {
-      fprintf(outfile,"{");
+      //     fprintf(outfile,"\n");
 
       for (int k=0; k<matrix[0].size(); k++)
 	{
@@ -50,22 +49,20 @@ void printMatrixToFile(FILE *outfile, vec2d &matrix)
 
 	  if (k < (matrix[0].size()-1))
 	    {
-	      fprintf(outfile,",\t");
+	      fprintf(outfile,"  ");
 	    }
 	  else
 	    {
-	      fprintf(outfile,"},\n");
+	      fprintf(outfile,"\n");
 	    }
 	}
     }
-  fprintf(outfile,"}\n");
 
 }
 
 
 void printMatrixToFile(FILE *outfile, OneD &matrix)
 {
-  fprintf(outfile,"{");
   
   for (int i=0; i<matrix.size(); i++)
     {
@@ -73,9 +70,9 @@ void printMatrixToFile(FILE *outfile, OneD &matrix)
 
       if (i < (matrix.size()-1))
 	{
-	  fprintf(outfile,",\t");
+	  fprintf(outfile,"\n");
 	}
     }
-  fprintf(outfile,"}\n");
+  fprintf(outfile,"\n");
 
 }

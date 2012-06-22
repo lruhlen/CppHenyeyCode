@@ -117,7 +117,7 @@ vector<double> subtractMatrix(vector<double> &matrixA, vector<double> &matrixB )
 
   for (int n = 0; n < numElements; n++)
     {  
-      result[n] = matrixA[n] + matrixB[n];	
+      result[n] = matrixA[n] - matrixB[n];	
     }
   return result;
 }

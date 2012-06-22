@@ -7,6 +7,19 @@
 #include "global.h"
 using namespace std;
 
+double matrixMultiply(OneD &matrixA, OneD &matrixB)
+{
+  int A_rows = matrixA.size();
+  double result = 0.0;
+
+  for(int i=0;i<A_rows;i++)
+    {
+      result += matrixA[i] * matrixB[i];
+    }
+  
+  return result;
+}
+
 
 ///// Multiplying two multi-dimensional matrices 
 struct vec2d matrixMultiply(struct vec2d &matrixA, struct vec2d &matrixB)

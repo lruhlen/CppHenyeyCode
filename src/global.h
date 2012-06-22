@@ -9,8 +9,8 @@
 #include "AboutThisRun.h"
 #include "physicalConstants.h"
 #include "printMatrix.h"
-
-
+#include "pause_for_user.h"
+#include <algorithm>
 using namespace std;
 //====================================================
 // Random useful info that needs to be passed around
@@ -58,52 +58,41 @@ class Table
  public:
   // Variable declarations
   string table_name;
-  vec3d IndepVarsGrid;
-  vec3d DepVarsGrid;
+  //  vec3d IndepVarsGrid;
+  //  vec3d DepVarsGrid;
 
   // Function declarations
-  void read_in(); // This function will be superceeded by the specific read-in functions for each of the specific types of tables, and their associated classes and methods
+  void read_in(int numXvals, int numYvals); 
+  OneD xvals, yvals;
+  vec2d gridvals;
 
   // The general look-up function
   vec2d lookup(double IndepVar1, double IndepVar2);
+  //  vec2d old_lookup(double IndepVar1, double IndepVar2);
 
   // The bilinear interpolation function
-  double bilinear_interp(double IndepVar1, double IndepVar2, int DepVarIndex);
-
+  double bilinear_interp(double IndepVar1, double IndepVar2);
+  //  double old_bilinear_interp(double IndepVar1, double IndepVar2, int DepVarIndex);
   
-  double IndepVar1_min, IndepVar1_max, IndepVar2_min, IndepVar2_max;
+  //  double IndepVar1_min, IndepVar1_max, IndepVar2_min, IndepVar2_max;
   // These will be set by the read-in function...
 
+  // A method that will prints the table's contents
+  void printTable();
+
 
 };
 
-
-
-//====================================================
-// Make a class to hold the (Saumon) EOS tables.
-// This will be included in the bundle class(?).
-//====================================================
-class EOStable : public Table
+// For passing a group of tables that describe a particular system's total EOS
+class TableGroup : public Table
 {
  public:
-  // Variable declarations
-  int i_rho, i_internal_energy, i_ad_grad, i_delta;
+  // variable declarations
+  Table cp, delta, rho, kappa;
 
-  // Function declarations
-  void read_in();
-
-};
-
-//====================================================
-// Make a class to hold the opacity lookup tables.
-//====================================================
-class Opacitytable : public Table
-{
- public:
-  // Variable declarations
-  int i_kappa;
-  // Function declarations
-  void read_in();
+  // function declarations
+  // want something that will look up everything that depends on P and T only and return all those values...
+  OneD lookup(double P, double T);
 };
 
 
@@ -112,7 +101,7 @@ class Opacitytable : public Table
 // for transport between functions
 //====================================================
 
-class bundle : public EOStable, public Opacitytable
+class bundle : public TableGroup
 {
  public:
   // Variable declarations
@@ -127,18 +116,14 @@ class bundle : public EOStable, public Opacitytable
   vector<double> kappa;
   vector<double> internal_energy;
   vector<double> Enuc;
-  
-  EOStable EqnOfStateTable;
-  Opacitytable LowTempKappaTable, HighTempKappaTable;
+
+  TableGroup EOS;
   
 
   // Function declarations
   void read_in_vars(int varnum, string filename);
-  void update_vars(bool is_the_update_xprime_based);
-
+//   void update_vars(bool is_the_update_xprime_based);
+ 
 };
-
-
-
 
 #endif
