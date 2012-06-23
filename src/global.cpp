@@ -231,284 +231,280 @@ OneD TableGroup::lookup(double P, double T)
 //====================================================
 // bundle method definitions 
 //====================================================
-void bundle::read_in_vars(int varnum, string filename)
+void bundle::read_in_vars(string filename)
  {
-   /*
-     Varnum:
-    -1 = M (mass)
-     0 = P (pressure)
-     1 = r (radius)
-     2 = L (luminosity)
-     3 = T (temperature)
-   */
-
-   vector<double> tempvec1a(jMax),tempvec2a(jMax);
-   vector<double> tempvec1b(jMax),tempvec2b(jMax);
-   int index=0;
-   string line,foo;
+   // Open the file and read in its contents
    ifstream myfile(filename.c_str());
-   //  stringstream ss;
+   stringstream ss;
+   string line, foo;
+   OneD tempMwhole(jMax), tempMhalf(jMax), tempdMwhole(jMax), tempdMhalf(jMax), tempR(jMax), tempP(jMax), tempL(jMax), tempT(jMax);
+   int linenum = 0;
 
-   if (myfile.is_open())
-     {
-       while (! myfile.eof())
-	 {	
-	   
-	   // Read in the line of data from the table file	  
-	   while ( (getline(myfile,line)) && (index < jMax))
-	     {
-	
-	       /* Skip empty lines and header lines */
-	       if ((line == "")||(line.size()<8))
-		 {
-		   // // cout<<"Skipping over header lines \n";
-		   continue;
-		 }
-	       else
-		 {
-		   // Store the values in the first storage vector
-		   tempvec1a[index] = atof(line.c_str());  // Original value
-		   tempvec1b[index] = pow(10.0,tempvec1a[index]); // Value translated from log<?> to ?
+  if (myfile.is_open())
+    { 
+      while((! myfile.eof()) && (linenum < jMax))
+	{
+	  getline(myfile,line);
+	  ss.clear();
+	  ss.str(line);
+	  ss >> ws;
 
-		   // Interpolating the mass half-steps
-		   if (index == 0 )
-		     {
-		       tempvec2a[index] = tempvec1a[index]; // logged
-		       tempvec2b[index] = tempvec1b[index]; //un-logged
-		     }
-		   else
-		     {
-		       tempvec2a[index] = 0.5 *( tempvec1a[index-1] + tempvec1a[index]); // logged
-		       tempvec2b[index] = 0.5*( tempvec1b[index-1] + tempvec1b[index]); // un-logged
-		     }
-		   
-		   index++;
-		 }
-	     }
-	 }
-     }
- 
- 
+	  if (line.find("//") != string::npos) // skip over comments in the input file
+	    {
+	      continue;
+	    }
 
-   // If you're reading in the mass info, do this:
-   if (varnum == -1) 
-     {
-       // The whole-integer index values that you read in above
-       // go in the second row of the mass vector
-       M[0] = tempvec2a;  // Yes, this numbering _is_ foolish.
-       M[1] = tempvec1a; 
-       
-     }
-   
-   // If you're reading in either temperature (0) or pressure (3)
-   // info, do this:
-   if ((varnum==0) || (varnum==3) )
-     {
-       x[varnum] = tempvec1b; // un-logged value
-     }
-   
-   // If you're reading in either the radius or luminosity
-   // info, do this:
-   if ((varnum==1) ||(varnum==2) ) //radius 
-     {
-       x[varnum] = tempvec1a; // not log-scale in the read-in file, so leave as is
-     }
+
+	  for (int word = 0; word < 8; word++)
+	    { // 0, 1,  2, 3, 4, 5, 6, 7
+	      // J, dM, M, P, R, L, T, RHO  
+	      ss >> foo;
+	      
+	      if (word == 1)
+		{
+		  tempdMwhole[linenum] = atof(foo.c_str());
+		}
+	      if (word == 2)
+		{
+		  tempMwhole[linenum] = atof(foo.c_str());
+		}
+	      if (word == 3)
+		{
+		  tempP[linenum] = atof(foo.c_str());
+		}
+	      if (word == 4)
+		{
+		  tempR[linenum] = atof(foo.c_str());
+		}
+	      if (word == 5)
+		{
+		  tempL[linenum] = atof(foo.c_str());
+		}
+	      if (word == 6)
+		{
+		  tempT[linenum] = atof(foo.c_str());
+		}
+
+	      if (linenum == 0)
+		{
+		  tempMhalf[0] = 0.5 * tempMwhole[0]; //????
+		  tempdMhalf[0] = tempMhalf[0];
+		}
+	      else
+		{		  
+		  tempMhalf[linenum] = (tempMwhole[linenum] + tempMwhole[linenum-1]) / 2.0; //?????
+		  tempdMhalf[linenum] = tempMhalf[linenum] - tempMhalf[linenum-1];
+		}
+	    }
+
+	  linenum++;
+	}
+    }
+
+  dMwhole = tempdMwhole;
+  Mwhole = tempMwhole;
+  dMhalf = tempdMhalf;
+  Mhalf = tempMhalf;
+  P = tempP;
+  T = tempT;
+  L = tempL;
+  r = tempR;
 
  } 
 
 
 //....................................................
 
-// void bundle::update_vars(bool is_the_update_xprime_based)
-// {
-//   // This method updates rho, delta, rad_grad, ad_grad, max_grad, cP, kappa, internal_energy and Enuc (well, not yet with Enuc), based on current values of x(r,P,T,L) and on the available lookup tables.
-//   double logP, logT, logAnswer, Answer, R, logR, T6;
-//   //  double ratio, temp, logkappa;
-//   double temp, logkappa;
-//   double maxlogkappa = 4.9; 
-//   double minlogkappa = -1.5;
-//   double ratio, dxratio;
+void bundle::update_vars(bool is_the_update_xprime_based)
+{
+  // This method updates rho, delta, rad_grad, ad_grad, max_grad, cP, kappa, internal_energy and Enuc (well, not yet with Enuc), based on current values of x(r,P,T,L) and on the available lookup tables.
+  double logP, logT, logAnswer, Answer, R, logR, T6;
+  //  double ratio, temp, logkappa;
+  double temp, logkappa;
+  double maxlogkappa = 4.9; 
+  double minlogkappa = -1.5;
+  double ratio, dxratio;
 
 
-//   for (int j=0; j < jMax; j++)
-//     { 
-//       if (is_the_update_xprime_based)
-// 	{
+  for (int j=0; j < jMax; j++)
+    { 
+      if (is_the_update_xprime_based)
+	{
 
-// 	  for (int i=0; i<iMax; i++)
-// 	    {
-// 	      if (i != 2)
-// 		{
-// 		  ratio = fabs( (x[i][j] - exp(xprime[i][j]) )/x[i][j] );
-// 		  //		  dxratio = fabs( (dx[i][j] - exp(dxprime[i][j]) )/dx[i][j] );
+	  for (int i=0; i<iMax; i++)
+	    {
+	      if (i != 2)
+		{
+		  ratio = fabs( (x[i][j] - exp(xprime[i][j]) )/x[i][j] );
+		  //		  dxratio = fabs( (dx[i][j] - exp(dxprime[i][j]) )/dx[i][j] );
 
-// 		  if (ratio > 20.*DBL_EPSILON) 
-// 		    {
-// 		      x[i][j] = exp(xprime[i][j]); 
-// 		    }
-// 		  //		  if (dxratio > 20.*DBL_EPSILON)
-// 		  //		    {
-// 		      dx[i][j] = exp(dxprime[i][j]);
-// 		      //		    }
-// 		}	      
-// 	      else
-// 		{
-// 		  x[i][j] = Ljup * xprime[i][j]; 
-// 		  dx[i][j] = Ljup * dxprime[i][j];
-// 		}
-// 	    }
+		  if (ratio > 20.*DBL_EPSILON) 
+		    {
+		      x[i][j] = exp(xprime[i][j]); 
+		    }
+		  //		  if (dxratio > 20.*DBL_EPSILON)
+		  //		    {
+		      dx[i][j] = exp(dxprime[i][j]);
+		      //		    }
+		}	      
+	      else
+		{
+		  x[i][j] = Ljup * xprime[i][j]; 
+		  dx[i][j] = Ljup * dxprime[i][j];
+		}
+	    }
 
-// 	  /*
-// 	  // Calculate the 'normal' (unprimed) variables
-// 	  ratio = fabs( (x[0][j] - exp(xprime[0][j]) )/x[0][j] );
-// 	  if (ratio > 20.*DBL_EPSILON) 
-// 	    {
-// 	      x[0][j] = exp(xprime[0][j]); 
-// 	    }
+	  /*
+	  // Calculate the 'normal' (unprimed) variables
+	  ratio = fabs( (x[0][j] - exp(xprime[0][j]) )/x[0][j] );
+	  if (ratio > 20.*DBL_EPSILON) 
+	    {
+	      x[0][j] = exp(xprime[0][j]); 
+	    }
 
-// 	  ratio = fabs( (x[1][j] - exp(xprime[1][j]) )/x[1][j] );
-// 	  if (ratio > 20.*DBL_EPSILON) 
-// 	    {
-// 	      x[1][j] = exp(xprime[1][j]); 
-// 	    }
+	  ratio = fabs( (x[1][j] - exp(xprime[1][j]) )/x[1][j] );
+	  if (ratio > 20.*DBL_EPSILON) 
+	    {
+	      x[1][j] = exp(xprime[1][j]); 
+	    }
 
 
-// 	  x[2][j] = Ljup * xprime[2][j]; 
+	  x[2][j] = Ljup * xprime[2][j]; 
 
 	  
-// 	  ratio = fabs( (x[3][j] - exp(xprime[3][j]) )/x[3][j] );
-// 	  if (ratio > 20.*DBL_EPSILON) 
-// 	    {
-// 	      x[3][j] = exp(xprime[3][j]); 
-// 	    }
-// 	  */
+	  ratio = fabs( (x[3][j] - exp(xprime[3][j]) )/x[3][j] );
+	  if (ratio > 20.*DBL_EPSILON) 
+	    {
+	      x[3][j] = exp(xprime[3][j]); 
+	    }
+	  */
 
-// 	}
+	}
 
-//       if (!is_the_update_xprime_based)
-// 	{
-// 	  // Calculate the prime variables
-// 	  xprime[0][j] = log(x[0][j]);
-// 	  xprime[1][j] = log(x[1][j]);
-// 	  xprime[2][j] = x[2][j] / Ljup; 
-// 	  xprime[3][j] = log(x[3][j]); 
-// 	}
+      if (!is_the_update_xprime_based)
+	{
+	  // Calculate the prime variables
+	  xprime[0][j] = log(x[0][j]);
+	  xprime[1][j] = log(x[1][j]);
+	  xprime[2][j] = x[2][j] / Ljup; 
+	  xprime[3][j] = log(x[3][j]); 
+	}
       
       
       
-//       // For use in looking things up in the EOS table...
-//       //      logP = log10(P[j]);
-//       //logT = log10(T[j]);
-//       logP = log10(x[0][j]);  
-//       logT = log10(x[3][j]); 
+      // For use in looking things up in the EOS table...
+      //      logP = log10(P[j]);
+      //logT = log10(T[j]);
+      logP = log10(x[0][j]);  
+      logT = log10(x[3][j]); 
 
  
-//       // Look up rho in the EOS table
-//       logAnswer = EqnOfStateTable.bilinear_interp(logT,logP,EqnOfStateTable.i_rho); 
-//       Answer = pow(10.0,logAnswer); 
-//       rho[j] = Answer; 
+      // Look up rho in the EOS table
+      // logAnswer = EqnOfStateTable.bilinear_interp(logT,logP,EqnOfStateTable.i_rho); 
+      Answer = pow(10.0,logAnswer); 
+      rho[j] = Answer; 
 
-//       // Look up the internal energy (U) in the EOS table
-//       logAnswer = EqnOfStateTable.bilinear_interp(logT,logP,EqnOfStateTable.i_internal_energy); 
-//       Answer = pow(10.0,logAnswer);
-//       internal_energy[j] = Answer; 
+      // Look up the internal energy (U) in the EOS table
+      //logAnswer = EqnOfStateTable.bilinear_interp(logT,logP,EqnOfStateTable.i_internal_energy); 
+      Answer = pow(10.0,logAnswer);
+      internal_energy[j] = Answer; 
      
 
-//       // Look up the adiabatic gradient in the EOS table
-//       logAnswer = EqnOfStateTable.bilinear_interp(logT,logP,EqnOfStateTable.i_ad_grad); 
-//       //      Answer = pow(10.0,logAnswer);
-//       ad_grad[j] = logAnswer; 
+      // Look up the adiabatic gradient in the EOS table
+      //logAnswer = EqnOfStateTable.bilinear_interp(logT,logP,EqnOfStateTable.i_ad_grad); 
+      //      Answer = pow(10.0,logAnswer);
+      // ad_grad[j] = logAnswer; 
   
 
 
 
-//       // Look up delta in the EOS table
-//       logAnswer = EqnOfStateTable.bilinear_interp(logT,logP,EqnOfStateTable.i_delta); 
-//       Answer = -1.0*logAnswer; 
-//       delta[j] = Answer; 
+      // Look up delta in the EOS table
+      //logAnswer = EqnOfStateTable.bilinear_interp(logT,logP,EqnOfStateTable.i_delta); 
+      Answer = -1.0*logAnswer; 
+      delta[j] = Answer; 
 
 
-//       // For now, we're skipping dealing with Enuc, since we assume that's zero anyway. 
-//       Enuc[j] = 0.0; 
+      // For now, we're skipping dealing with Enuc, since we assume that's zero anyway. 
+      Enuc[j] = 0.0; 
       
       
-//       // Look up the opacity in the opacity table
-//       // Will want to update this later to be able to determine
-//       // which of the opacity tables to use for this.
-//       // For right now, we're going to default to using only the 
-//       // high temperature opacity table.
+      // Look up the opacity in the opacity table
+      // Will want to update this later to be able to determine
+      // which of the opacity tables to use for this.
+      // For right now, we're going to default to using only the 
+      // high temperature opacity table.
       
-//       // First, calculate that R value...
+      // First, calculate that R value...
       
-//       T6 = x[3][j]/pow(10.0,6);  
-//       R = rho[j] / pow(T6,3.0); 
-//       logR = log10(R);
-      
-
-//       // Then, look up the kappa value in the table
-//       logAnswer = HighTempKappaTable.bilinear_interp(logT,logR,HighTempKappaTable.i_kappa);
-//       Answer = pow(10.0,logAnswer);
-//       kappa[j] = Answer;
+      T6 = x[3][j]/pow(10.0,6);  
+      R = rho[j] / pow(T6,3.0); 
+      logR = log10(R);
       
 
-//       /*
+      // Then, look up the kappa value in the table
+      //      logAnswer = HighTempKappaTable.bilinear_interp(logT,logR,HighTempKappaTable.i_kappa);
+      Answer = pow(10.0,logAnswer);
+      kappa[j] = Answer;
+      
 
-//       // P. Bodenheimer things this kludge below may be giving me
-//       // a 'greenhouse effect' in my calcs.
-//       // TOTALLY KLUDGING THE KAPPA CALCULATION UNTIL I CAN
-//       // GET MY HANDS ON AN OPACITY TABLE THAT COVERS THESE
-//       // TEMP/DENSITY RANGES!!!
-//       logkappa = ((maxlogkappa - minlogkappa)/( 0.0 - double(jMax) )) * double(j) + maxlogkappa; 
-//       kappa[j] = pow(10.0,logkappa); 
+      /*
+
+      // P. Bodenheimer things this kludge below may be giving me
+      // a 'greenhouse effect' in my calcs.
+      // TOTALLY KLUDGING THE KAPPA CALCULATION UNTIL I CAN
+      // GET MY HANDS ON AN OPACITY TABLE THAT COVERS THESE
+      // TEMP/DENSITY RANGES!!!
+      logkappa = ((maxlogkappa - minlogkappa)/( 0.0 - double(jMax) )) * double(j) + maxlogkappa; 
+      kappa[j] = pow(10.0,logkappa); 
  
        
-//       // Calculate the specific heat at constant pressure from the updated values above
-//       Answer = x[0][j] * delta[j] / (x[3][j] * rho[j] * ad_grad[j]); 
-//       // The equation above comes from Kippenhanh & Weigert, "Stellar Structure and Evolution", 1st edition, 1990, equation (4.21)
-//       cP[j] = Answer; 
+      // Calculate the specific heat at constant pressure from the updated values above
+      Answer = x[0][j] * delta[j] / (x[3][j] * rho[j] * ad_grad[j]); 
+      // The equation above comes from Kippenhanh & Weigert, "Stellar Structure and Evolution", 1st edition, 1990, equation (4.21)
+      cP[j] = Answer; 
 
 
-//       // Calculate the radiative gradient from the updated values above
-//       // (See the notes in my lab book on 10/6/2010 regarding questions
-//       // and possible errors in the way I'm currently calculating this.)
-//       Answer=0.0;
-//       Answer = (3.0 / (16.0 * pi * gravG * a * c) ) * ( (kappa[j] * x[2][j] * x[0][j]) / (M[1][j]* pow(x[3][j],4.0))); 
-//       rad_grad[j] = Answer;
+      // Calculate the radiative gradient from the updated values above
+      // (See the notes in my lab book on 10/6/2010 regarding questions
+      // and possible errors in the way I'm currently calculating this.)
+      Answer=0.0;
+      Answer = (3.0 / (16.0 * pi * gravG * a * c) ) * ( (kappa[j] * x[2][j] * x[0][j]) / (M[1][j]* pow(x[3][j],4.0))); 
+      rad_grad[j] = Answer;
 
-//       // Calculate the 'grad' value; i.e., whether the ad_grad or the rad_grad is bigger.
-//       if (rad_grad[j] > ad_grad[j]) 
-// 	{
-// 	  grad[j] = ad_grad[j]; 
-// 	}
-//       else 
-// 	{
-// 	  grad[j] = rad_grad[j]; 
-// 	}
-//       */      
+      // Calculate the 'grad' value; i.e., whether the ad_grad or the rad_grad is bigger.
+      if (rad_grad[j] > ad_grad[j]) 
+	{
+	  grad[j] = ad_grad[j]; 
+	}
+      else 
+	{
+	  grad[j] = rad_grad[j]; 
+	}
+      */      
 
 
-//       // // FOR THE POLYTROPIC, IDEAL GAS EOS TEST CASE!
-//       // // Calculate rho, delta, ad_grad, and cP.
-//       // // Make sure to set ad_grad equal to grad, too.
+      // // FOR THE POLYTROPIC, IDEAL GAS EOS TEST CASE!
+      // // Calculate rho, delta, ad_grad, and cP.
+      // // Make sure to set ad_grad equal to grad, too.
   
-//       // // rho
-//       // Answer = x[0][j]/K;
-//       // rho[j] = pow(Answer,0.6);
+      // // rho
+      // Answer = x[0][j]/K;
+      // rho[j] = pow(Answer,0.6);
 
-//       // // delta
-//       // Answer = 3.0*kB*rho[j]*x[3][j]/x[0][j];
-//       // delta[j] = Answer;
+      // // delta
+      // Answer = 3.0*kB*rho[j]*x[3][j]/x[0][j];
+      // delta[j] = Answer;
 
-//       // // ad_grad
-//       // ad_grad[j] =0.4;
-//       // grad[j] = ad_grad[j];
+      // // ad_grad
+      // ad_grad[j] =0.4;
+      // grad[j] = ad_grad[j];
 
-//       // // cP
-//       // Answer = 3.0*kB/(2.0*mH);
-//       // cP[j] = Answer;
+      // // cP
+      // Answer = 3.0*kB/(2.0*mH);
+      // cP[j] = Answer;
 
-//     } // End of loop over j
+    } // End of loop over j
 
 
 
-// }
+}

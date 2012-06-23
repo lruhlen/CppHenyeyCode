@@ -58,8 +58,6 @@ class Table
  public:
   // Variable declarations
   string table_name;
-  //  vec3d IndepVarsGrid;
-  //  vec3d DepVarsGrid;
 
   // Function declarations
   void read_in(int numXvals, int numYvals); 
@@ -68,15 +66,10 @@ class Table
 
   // The general look-up function
   vec2d lookup(double IndepVar1, double IndepVar2);
-  //  vec2d old_lookup(double IndepVar1, double IndepVar2);
 
   // The bilinear interpolation function
   double bilinear_interp(double IndepVar1, double IndepVar2);
-  //  double old_bilinear_interp(double IndepVar1, double IndepVar2, int DepVarIndex);
   
-  //  double IndepVar1_min, IndepVar1_max, IndepVar2_min, IndepVar2_max;
-  // These will be set by the read-in function...
-
   // A method that will prints the table's contents
   void printTable();
 
@@ -105,24 +98,23 @@ class bundle : public TableGroup
 {
  public:
   // Variable declarations
-  vec2d x, dx, x_old, dx_old, xprime, dxprime, xprime_old, dxprime_old; 
-  vec2d M;
-  vector<double> rho;
-  vector<double> delta;
-  vector<double> rad_grad;
-  vector<double> ad_grad;
-  vector<double> grad;
-  vector<double> cP;
-  vector<double> kappa;
-  vector<double> internal_energy;
-  vector<double> Enuc;
+  vec2d x, dx, x_old, dx_old, xprime, dxprime, xprime_old, dxprime_old, M; 
+  OneD r, L, T, P, Mwhole, Mhalf, dMwhole, dMhalf, rho, delta, cP, kappa;
+  /* vector<double> rho; */
+  /* vector<double> delta; */
+  /* vector<double> rad_grad; */
+  /* vector<double> ad_grad; */
+   vector<double> grad; 
+  /* vector<double> cP; */
+  /* vector<double> kappa; */
+   vector<double> internal_energy; 
+   vector<double> Enuc; 
 
   TableGroup EOS;
   
-
   // Function declarations
-  void read_in_vars(int varnum, string filename);
-//   void update_vars(bool is_the_update_xprime_based);
+  void read_in_vars(string filename);
+  void update_vars(bool is_the_update_xprime_based);
  
 };
 

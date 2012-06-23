@@ -79,6 +79,9 @@ int main()
   //    i = 3/2 = L (luminosity)
   //    i = 4/3 = T (temperature)
   
+  bundle vars;
+  vars.read_in_vars("/Users/laurel/Desktop/Research/CppHenyeyCode/InitialConds/10MjInput.txt");
+
   TableGroup eos;
   // Read in the kludgy low-temperature & low-pressure eos table
   // Remember: in these tables xvals = log10(P), yvals = log10(T)
@@ -94,28 +97,11 @@ int main()
   eos.kappa.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/CodingSandbox/opacity_tables/kappaKludge700.txt";
   eos.kappa.read_in(700,700);
   
-  double Rout = 6.0* Rsun, Lout = 10* Lsun, dMout = 0.001*Msun, Mout = Msun;
-  OneD test = atmos(Rout, Lout, dMout, Mout, eos);
-  string ID = "Msurface\t Rsurface\t Psurface\t Tsurface\t Rhosurface\n";
+  vars.EOS = eos;
 
-  cout<<ID;
-  printMatrix(test);
+  cout<<"Done!\n";
+  
 
-
-
-  // Testing out the new TableGroup data structure, with info on how to use its lookup method
-  /*
-  double P, T ;
-  P = 2.4e3;
-  T = 9.21e3;
-  OneD foo = eos.lookup(P,T);
-  string names="rho\tcp\tdelta\tkappa\n";
-  cout<<names;
-  printMatrix(foo);
-  */
-
-
-   
 
   return 0;
 } 
