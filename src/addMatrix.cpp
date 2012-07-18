@@ -234,3 +234,33 @@ vector<double> addMatrix(double number, vector<double> &matrixA)
     }
   return result;
 }
+
+
+OneD addMatrix( vec2d &matrixA, OneD &matrixB)
+{
+  int numRows = matrixB.size();
+
+  OneD result(numRows);
+  
+    for (int row = 0; row < numRows; row++)
+    {	  
+	  result[row] = matrixA[row][0] + matrixB[row];
+    }
+
+  return result;
+}
+
+OneD addMatrix( OneD &matrixA, vec2d &matrixB)
+{
+  int numRows = matrixA.size();
+
+  OneD result(numRows);
+  
+    for (int row = 0; row < numRows; row++)
+    {
+	  result[row] = matrixB[row][0] + matrixA[row];
+    }
+
+  return result;
+}
+

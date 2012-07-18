@@ -33,9 +33,9 @@ typedef vector<TwoD> ThreeD;
 
 struct vec2d: public TwoD
 {
-  vec2d():TwoD() {};
-  vec2d(int m, int n):TwoD(m,OneD(n)){};
-  vec2d(int m, int n, double d): TwoD(m,OneD(n,d)) {}  
+ vec2d():TwoD() {};
+ vec2d(int m, int n):TwoD(m,OneD(n)){};
+ vec2d(int m, int n, double d): TwoD(m,OneD(n,d)) {}  
 };
 // Giving up on trying to code "methods" into this "class" or whatever, for now.
 
@@ -58,21 +58,17 @@ class Table
  public:
   // Variable declarations
   string table_name;
-
-  // Function declarations
-  void read_in(int numXvals, int numYvals); 
   OneD xvals, yvals;
   vec2d gridvals;
 
+  // Function declarations
+  void read_in(int numXvals, int numYvals); 
   // The general look-up function
   vec2d lookup(double IndepVar1, double IndepVar2);
-
   // The bilinear interpolation function
-  double bilinear_interp(double IndepVar1, double IndepVar2);
-  
+  double bilinear_interp(double IndepVar1, double IndepVar2);  
   // A method that will prints the table's contents
   void printTable();
-
 
 };
 
@@ -86,6 +82,7 @@ class TableGroup : public Table
   // function declarations
   // want something that will look up everything that depends on P and T only and return all those values...
   OneD lookup(double P, double T);
+
 };
 
 
@@ -98,13 +95,20 @@ class bundle : public TableGroup
 {
  public:
   // Variable declarations
+
+  OneD r, L, T, P, Mwhole, Mhalf, dMwhole, dMhalf, rho, delta, cP, kappa, grad;
+  OneD dr, dL, dT, dP;
+  OneD oldP, oldT;
+
+  // Get rid of the following line once you've fully integrated the updates into
+  // all of the CDEG & etc. subroutines that use the old variable conventions
   vec2d x, dx, x_old, dx_old, xprime, dxprime, xprime_old, dxprime_old, M; 
-  OneD r, L, T, P, Mwhole, Mhalf, dMwhole, dMhalf, rho, delta, cP, kappa;
+
   /* vector<double> rho; */
   /* vector<double> delta; */
   /* vector<double> rad_grad; */
   /* vector<double> ad_grad; */
-   vector<double> grad; 
+  //   vector<double> grad; 
   /* vector<double> cP; */
   /* vector<double> kappa; */
    vector<double> internal_energy; 
@@ -114,6 +118,9 @@ class bundle : public TableGroup
   
   // Function declarations
   void read_in_vars(string filename);
+  void eos_var_update(int i);
+  // Consider getting rid of the function below once you're done
+  // with the variable/method/function updating...
   void update_vars(bool is_the_update_xprime_based);
  
 };

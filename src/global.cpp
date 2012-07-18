@@ -29,14 +29,16 @@ void Table::read_in(int numXvals, int numYvals)
   OneD tempxvals(numXvals,0), tempyvals(numYvals,0);
   vec2d tempgridvals(numYvals,numXvals,0);
 
+  
   if (myfile.is_open())
     { 
       while(! myfile.eof())
-	{
+	{ 
 	  getline(myfile,line);
 	  ss.clear();
 	  ss.str(line);
 	  ss >> ws;
+	  
 
 	  if (line.find("//") != string::npos) // skip over comments in the input file
 	    {
@@ -44,28 +46,25 @@ void Table::read_in(int numXvals, int numYvals)
 	    }
 
 	  if (linenum==0) //read in the x-vals
-	    {
+	    { 
 	      for (int word = 0; word < numXvals; word++)
 		{
 		  ss >> foo;	
-		  tempxvals[word] = atof(foo.c_str());		  
+		  tempxvals[word] = atof(foo.c_str());	
 		}
-
-
 	    }
 	      
 	  else if (linenum==1) //read in the y-vals
-	    {
+	    { 
 	      for (int word = 0; word < numYvals; word++)
 		{
 		  ss >> foo;		  
 		  tempyvals[word] = atof(foo.c_str());	
 		}
-
 	    }
 	  
 	  else if (linenum -2 < numYvals)
-	    {
+	    { 
 	      // read in the grid values
 	      for (int word = 0; word < numXvals; word++)
 		{
@@ -73,12 +72,18 @@ void Table::read_in(int numXvals, int numYvals)
 		  tempgridvals[linenum-2][word] =  atof(foo.c_str());
 		}
 	    }
+	
 	  linenum++;	  
 	}
-      xvals = tempxvals;
-      yvals = tempyvals;
-      gridvals = tempgridvals;
     }
+  else
+    {
+      cout<<"ERROR: Can't open the file: "<<table_name<<endl;
+      exit(1);
+    }
+  xvals = tempxvals;
+  yvals = tempyvals;
+  gridvals = tempgridvals;
 
 }
 
@@ -105,6 +110,7 @@ vec2d Table::lookup(double IndepVar1, double IndepVar2)
     {
       cout<<"Value ("<<IndepVar1<<", "<<IndepVar2<<") not within this table \n";
       cout<<"\tTable name: "<<table_name<<endl;
+      exit(1);
       return corner_indices;
     }
   else
@@ -219,7 +225,6 @@ OneD TableGroup::lookup(double P, double T)
   double logP = log10(P);
   double logT = log10(T);
   
-
   result[0] = rho.bilinear_interp(logP,logT);
   result[1] = cp.bilinear_interp(logP,logT);
   result[2] = delta.bilinear_interp(logP,logT);
@@ -237,7 +242,7 @@ void bundle::read_in_vars(string filename)
    ifstream myfile(filename.c_str());
    stringstream ss;
    string line, foo;
-   OneD tempMwhole(jMax), tempMhalf(jMax), tempdMwhole(jMax), tempdMhalf(jMax), tempR(jMax), tempP(jMax), tempL(jMax), tempT(jMax);
+   OneD tempMwhole(jMax), tempMhalf(jMax), tempdMwhole(jMax), tempdMhalf(jMax), tempR(jMax), tempP(jMax), tempL(jMax), tempT(jMax), tempRho(jMax), temp(jMax,0), tempdx(jMax,0);
    int linenum = 0;
 
   if (myfile.is_open())
@@ -287,8 +292,8 @@ void bundle::read_in_vars(string filename)
 
 	      if (linenum == 0)
 		{
-		  tempMhalf[0] = 0.5 * tempMwhole[0]; //????
-		  tempdMhalf[0] = tempMhalf[0];
+		   tempMhalf[0] = 0.5 * tempMwhole[0]; //????
+		   tempdMhalf[0] = tempMhalf[0];
 		}
 	      else
 		{		  
@@ -300,6 +305,21 @@ void bundle::read_in_vars(string filename)
 	  linenum++;
 	}
     }
+  else
+    {
+      cout<<"ERROR: cannot open the file "<<filename<<endl;
+      exit(1);
+    }
+
+
+  // //  dMhalf = tempdMhalf;
+  // for (int j =0; j < linenum; j++)
+  //   {
+  //     tempdMhalf[j] = (tempMhalf[j+1] - tempMhalf[j]);  //still need to contend with calculating dMhalf at the outer boundary, though... Make sure to come back to this.
+  //   }
+  // tempdMhalf[linenum] = tempMwhole[linenum] - tempMhalf[linenum];
+
+
 
   dMwhole = tempdMwhole;
   Mwhole = tempMwhole;
@@ -309,10 +329,48 @@ void bundle::read_in_vars(string filename)
   T = tempT;
   L = tempL;
   r = tempR;
-
+  rho = temp;
+  cP = temp;
+  delta = temp;
+  kappa = temp;
+  Enuc = temp;
+  grad = temp;
+  oldP = P;
+  oldT = T;
+  dr = tempdx;
+  dP = tempdx;
+  dT = tempdx;
+  dL = tempdx;
  } 
 
-
+void bundle::eos_var_update(int i)
+{
+  OneD temp;
+  int start, stop;
+  if (i == -1)
+    {
+      start = 0;
+      stop = jMax;
+    }
+  else
+    {
+      start = i;
+      stop = i+1;
+    }
+    
+  for (int j=start; j < stop; j++)
+    {
+      temp = EOS.lookup(P[j],T[j]);
+      rho[j] = temp[0];
+      cP[j] = temp[1];
+      delta[j] = temp[2];
+      kappa[j] = temp[3];
+      
+      double radgrad = 3.0 * kappa[j] * L[j] *P[j] / ( 16.0 * pi * gravG * a * c * Mhalf[j] * pow(T[j],4.0) );
+      double adgrad = P[j] * delta[j] / (T[j] * rho[j] * cP[j]);
+      grad[j] = min(adgrad,radgrad);
+    }
+}
 //....................................................
 
 void bundle::update_vars(bool is_the_update_xprime_based)

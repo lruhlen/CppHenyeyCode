@@ -35,6 +35,31 @@ void printMatrix(vector<vector <double> > &matrix)
   cout<<endl<<endl;
 }
 
+void printMatrix(vector<vector <double> > &matrix, int startx, int stopx)
+{
+  vector<double> vec = matrix[0];
+
+       int rows = int(matrix.size());
+  
+
+  for( int r = 0; r < rows; r++){
+    printVector(matrix[r],startx,stopx);
+  }
+  cout<<endl<<endl;
+}
+void printMatrix(vector<vector <double> > &matrix, int startx, int stopx, int starty, int stopy)
+{
+  if (stopy < 0)
+    {
+      stopy = int(matrix[0].size()) + stopy;
+    }
+  
+  for( int r = starty; r < stopy; r++){
+    printVector(matrix[r],startx,stopx);
+  }
+  cout<<endl<<endl;
+}
+
 void printMatrix(vector<vector <int> > &matrix)
 {
   vector<int> vec = matrix[0];
@@ -106,6 +131,10 @@ void printMatrix(vector<vector <bool> > &matrix)
 //// Also make printMatrix able to just print out vectors
 void printMatrix( vector<double> &vec){
   printVector(vec);
+}
+void printMatrix( vector<double> &vec, int startx, int stopx)
+{
+  printVector(vec,startx,stopx);
 }
 void printMatrix( vector<int> &vec){
   printVector(vec);

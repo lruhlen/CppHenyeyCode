@@ -5,6 +5,7 @@ using namespace std;
 
 
 void printVector (vector<double>  &vec);
+void printVector (vector<double> &vec, int start, int stop);
 void printVector (vector<long>  &vec);
 void printVector (vector<int>  &vec);
 void printVector (vector<char>  &vec);

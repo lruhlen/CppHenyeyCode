@@ -3,7 +3,7 @@
 using namespace std;
 
 
-vector<double> G2J(bundle &vars);
-vector<double> G2J(bundle &vars, bundle &varied_vars, int varied_param_index, int offset);
+double G2J(bundle &vars, int j);
+
 
 #endif

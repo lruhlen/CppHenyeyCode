@@ -11,9 +11,12 @@
 
    Users should not have to edit this file.
    ============================================== */
-const double pi = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679; 
+
+//const double pi = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679; 
+const double pi = 3.14159265359; // Again, the incorrect value used in Peter's code 
 
 const double gravG = 6.67259e-8;
+//const double gravG = 6.6704e-8; // This value is inaccurate, but it's what Peter's code uses so I'm putting it in here just for testing/comparing purposes.
 
 const double a = 7.5646e-15;
 

@@ -26,5 +26,7 @@ struct vec2d subtractMatrix(double number, struct vec2d &matrixA);
 vector<double> subtractMatrix(vector<double> &matrixA, double number );
 
 vector<double> subtractMatrix(double number, vector<double> &matrixA);
+OneD subtractMatrix(OneD &matrixA, vec2d &matrixB);
+OneD subtractMatrix(vec2d &matrixA, OneD &matrixB);
 
 #endif

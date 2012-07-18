@@ -27,4 +27,7 @@ vector<double> addMatrix(vector<double> &matrixA, double number );
 
 vector<double> addMatrix(double number, vector<double> &matrixA);
 
+OneD addMatrix(OneD &matrixA, vec2d &matrixB);
+OneD addMatrix(vec2d &matrixA, OneD &matrixB);
+
 #endif

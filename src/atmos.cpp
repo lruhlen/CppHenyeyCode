@@ -12,6 +12,7 @@ using namespace std;
 
 OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eos)
 {
+
   OneD returnvals(5,0);
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Start of my sandboxing of the atmos code
@@ -46,6 +47,7 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
   OneD eosvals(4);
   
   Pout = pow(TKO,4.0) * 3.0 * a;
+  Pout = max(pow(10.0,eos.rho.xvals[0]),Pout);
   ratio = 1.0;
   threshold = pow(10.0,-5);
   littleG = gravG * M / (pow(Rout,2));
@@ -53,6 +55,7 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
   eosvals = eos.lookup(Pout,TKO);
   kappa1 = eosvals[3];
   Pguess1 = Pout + (GD/kappa1);
+
   
   //   Step 4
   while (ratio > threshold)
@@ -84,9 +87,10 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
   double temp;
   
   double dMWhole= dM;
-  double dMHalf = 0.9*dMWhole;
-  double MassLimitHalf = M - dMHalf;
-  double MassLimitWhole = M - dMWhole;
+  double dMHalf = 0.9*dMWhole; 
+  // cout<<"dMhalf = "<<dMHalf<<endl;
+  double MassLimitHalf =  dMHalf;
+
   bool TauSwitch = true, MassLimitHalfSwitch = true;
   double Psurface, Tsurface, Rhosurface, Msurface, Rsurface; 
 
@@ -95,54 +99,35 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
   tau = 0.5*dTau;
   eosvals = eos.lookup(P,T);
   rho = eosvals[0];
-  MTau23 = 0;
-  Mtemp = M;
-  RTau23 = 0;
-  Rtemp = R;
+  MTau23 = Mstar;
+  Mtemp = Mstar;
+  RTau23 = Rout;
+  Rtemp = Rout;
+  M = 0;
+  R = 0;
   //  double Mout = M; 
   //  Rout = R;
-  
-  //  cout<<"Initial M = "<<M<<"\t P = "<<P<<"\t R = "<<R<<"\t T = "<<T<<endl;
-   // Testing out the new TableGroup data structure, with info on how to use its lookup method
-   /*
-     double P, T ;
-     P = 2.4e3;
-     T = 9.21e3;
-     OneD foo = eos.lookup(P,T);
-     string names="rho\tcp\tdelta\tkappa\n";
-     cout<<names;
-     printMatrix(foo);
-   */
+
 
    int j = 1;
      do
      {	   	
        factor = dTau;
-          
-       //------------------------------       
-       if (MTau23 != 0)
-  	 {
-  	   Mtemp = Mout - M + MTau23;
-  	   Rtemp = Rout - R + RTau23;
-  	 }
-       else
-  	 {
-  	   Mtemp = Mout;
-  	   Rtemp = Rout;
-  	 }
+
        eosvals = eos.lookup(P,T);
        delta = eosvals[2];
        cP = eosvals[1];
        rho = eosvals[0];
        kappa = eosvals[3];
 
+
        radnab = (3 / (16*pi*gravG*a*c) ) * (kappa * Lout * P / (Mtemp*pow(T,4)) );
        adnab = delta * P / (cP * T * rho);
-       nab = min(radnab,adnab);
-       
+       nab = min(radnab,adnab);//*(T/P);
+       //       cout<<"Step "<<j<<":\t P = "<<P<<"\t T = "<<T<<"\tkappa = "<<kappa<<"\t nab = "<<nab<<"\t delta = "<<delta<<"\t cP = "<<cP<<"\t radnab = "<<radnab<<"\t adnab = "<<adnab<<endl;       
 
-       dMk1 = factor * -4.0*pi*pow(Rtemp,2)/kappa;
-       dRk1 = factor * -1.0 / (rho * kappa);
+       dMk1 = factor * 4.0*pi*pow(Rtemp,2)/kappa;
+       dRk1 = factor * 1.0 / (rho * kappa);
        dPk1 = factor * gravG * Mtemp / (kappa * pow(Rtemp,2));
        dTk1 = factor * gravG * Mtemp * T * nab / (pow(Rtemp,2)*kappa*P);
        //------------------------------
@@ -153,16 +138,8 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
        Pk2 = P + 0.5*dPk1;
        Tk2 = T + 0.5*dTk1;
        
-       if (MTau23 != 0)
-  	 {
-  	   Mtemp = Mout - Mk2 + MTau23;
-  	   Rtemp = Rout - Rk2 + RTau23;
-  	 }
-       else
-  	 {
-  	   Mtemp = Mout;
-  	   Rtemp = Rout;
-  	 }
+       Mtemp = Mstar - max(0.0,Mk2-MTau23);
+       Rtemp = Rout - max(0.0,Rk2-RTau23);
 
        eosvals = eos.lookup(Pk2,Tk2);
        delta = eosvals[2];
@@ -171,10 +148,10 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
        kappa = eosvals[3];
        radnab = (3 / (16*pi*gravG*a*c) ) * (kappa * Lout * Pk2 / (Mtemp*pow(Tk2,4)) );
        adnab = delta * Pk2 / (cP * Tk2 * rho);
-       nab = min(radnab,adnab);
+       nab = min(radnab,adnab);//*(Tk2/Pk2);
        
-       dMk2 = factor * -4.0*pi*pow(Rtemp,2)/kappa;
-       dRk2 = factor * -1.0 / (rho * kappa);	    
+       dMk2 = factor *4.0*pi*pow(Rtemp,2)/kappa;
+       dRk2 = factor *1.0 / (rho * kappa);	    
        dPk2 = factor * gravG * Mtemp / (kappa * pow(Rtemp,2));
        dTk2 = factor * gravG * Mtemp * Tk2 * nab / (pow(Rtemp,2)*kappa*Pk2);
        //------------------------------
@@ -185,16 +162,8 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
        Pk3 = P + 0.5*dPk2;
        Tk3 = T + 0.5*dTk2;
           
-       if (MTau23 != 0)
-  	 {
-  	   Mtemp = Mout - Mk3 + MTau23;
-  	   Rtemp = Rout - Rk3 + RTau23;
-  	 }
-       else
-  	 {
-  	   Mtemp = Mout;
-  	   Rtemp = Rout;
-  	 }
+       Mtemp = Mstar - max(0.0,Mk3-MTau23);
+       Rtemp = Rout - max(0.0,Rk3-RTau23);
              
        eosvals = eos.lookup(Pk3,Tk3);
        delta = eosvals[2];
@@ -203,10 +172,10 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
        kappa = eosvals[3];
        radnab = (3 / (16*pi*gravG*a*c) ) * (kappa * Lout * Pk3 / (Mtemp*pow(Tk3,4)) );
        adnab = delta * Pk3 / (cP * Tk3 * rho);
-       nab = min(radnab,adnab);
+       nab = min(radnab,adnab);//*(Tk3/Pk3);
 
-       dMk3 = factor * -4.0*pi*pow(Rtemp,2)/kappa;
-       dRk3 = factor * -1.0 / (rho * kappa);
+       dMk3 = factor * 4.0*pi*pow(Rtemp,2)/kappa;
+       dRk3 = factor * 1.0 / (rho * kappa);
        dPk3 = factor * gravG * Mtemp / (kappa * pow(Rtemp,2));
        dTk3 = factor * gravG * Mtemp * Tk3 * nab / (pow(Rtemp,2)*kappa*Pk3);
        //------------------------------
@@ -217,16 +186,8 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
        Pk4 = P + dPk3;
        Tk4 = T + dTk3;
  
-       if (MTau23 != 0)
-  	 {
-  	   Mtemp = Mout - Mk4 + MTau23;
-  	   Rtemp = Rout - Rk4 + RTau23;
-  	 }
-       else
-  	 {
-  	   Mtemp = Mout;
-  	   Rtemp = Rout;
-  	 }
+       Mtemp = Mstar - max(0.0,Mk4-MTau23);
+       Rtemp = Rout - max(0.0,Rk4-RTau23);
 
        eosvals = eos.lookup(Pk4,Tk4);
        delta = eosvals[2];
@@ -235,13 +196,13 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
        kappa = eosvals[3];        
        radnab = (3 / (16*pi*gravG*a*c) ) * (kappa * Lout * Pk4 / (M*pow(Tk4,4)) );
        adnab = delta * Pk4 / (cP * Tk4 * rho);
-       nab = min(radnab,adnab);
+       nab = min(radnab,adnab);//*(Tk4/Pk4);
        
        
-       dMk4 = factor * -4.0*pi*pow(Rk4,2)/kappa;
-       dRk4 = factor * -1.0 / (rho * kappa);
-       dPk4 = factor * gravG * Mk4 / (kappa * pow(Rk4,2));
-       dTk4 = factor * gravG * Mk4 * Tk4 * nab / (pow(Rk4,2)*kappa*Pk4);       
+       dMk4 = factor * 4.0*pi*pow(Rtemp,2)/kappa;
+       dRk4 = factor * 1.0 / (rho * kappa);
+       dPk4 = factor * gravG * Mtemp / (kappa * pow(Rtemp,2));
+       dTk4 = factor * gravG * Mtemp * Tk4 * nab / (pow(Rtemp,2)*kappa*Pk4);       
        //------------------------------
        
        
@@ -255,9 +216,9 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
 
        
        //------------------------------
-       if ( (M <= MassLimitHalf) && MassLimitHalfSwitch )
+       if ( (M >= MassLimitHalf) && MassLimitHalfSwitch )
   	 {
-	   //  	   cout<<"*** ";
+	   //	   cout<<"*** ";
   	   Psurface = P;
   	   Tsurface = T;
 	   eosvals = eos.lookup(Psurface,Tsurface);
@@ -270,7 +231,7 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
        //------------------------------
        if( (tau > (2.0/3.0)) && TauSwitch )
   	 {
-	   //  	   cout<<"*** ";
+	   //	   cout<<"*** ";
   	   MTau23 = M;
   	   RTau23 = R;
 	   
@@ -282,7 +243,7 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
        //------------------------------
        if(tau > 10)
   	 {
-  	   temp = min(1.08 * dTau , 9.2e4);
+	   temp = min(1.08 * dTau , 1.0e2);
   	   dTau = max(temp , 1.01* dTau );
   	   dTau = 1.01* dTau;
   	 }
@@ -298,30 +259,34 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
   	     }
   	 }
        //------------------------------
-  
-       //------------------------------
-       tau = tau + dTau;
-       //------------------------------
-  
-       //------------------------------
+
        // if (j%100 == 0)
        // 	 {
-       // 	   cout<<"Step "<<j<<":\tdTau = "<<dTau<<"\t tau = "<<tau<<"\tM = "<<M<<"\tP = "<<P<<"\tR = "<<R<<"\t T = "<<T<<endl;
+       //       cout<<"Step "<<j<<":\tdTau = "<<dTau<<"\t tau = "<<tau<<"\tdM ="<<(1.0/6.0) * (dMk1 + 2.0*dMk2 + 2.0*dMk3 + dMk4)<< "\tM = "<<M<<endl;
        // 	 }
+       //       cout<<"Step "<<j<<":   dMk1 = "<<dMk1<<"   dMk2 = "<<dMk2<<"   dMk3 = "<<dMk3<<"   dMk4 = "<<dMk4<<endl;
+       //------------------------------
+
+       //------------------------------
+       tau+= dTau;
+       //------------------------------
+
+       //------------------------------
        j++;
        //------------------------------
 
 
-     } while (M >= MassLimitWhole);
-        
+     } while (M <= dM);
+     //cout<<"Step "<<j<<":\tdTau = "<<dTau<<"\t tau = "<<tau<<"\tM = "<<M<<"\tP = "<<P<<"\tR = "<<R<<"\t T = "<<T<<endl;
+
      Msurface = M;
      Rsurface = R;
 
      returnvals[0] = Msurface;
+     //returnvals[1] = Rout-Rsurface;
      returnvals[1] = Rsurface;
      returnvals[2] = Psurface;
      returnvals[3] = Tsurface;
      returnvals[4] = Rhosurface;
-
   return returnvals;
 }

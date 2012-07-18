@@ -11,78 +11,27 @@
 using namespace std;
 
 
-vector<double> G3J(bundle &vars)
+double G3J(bundle &vars, int j)
 {
 
-  vector<double> result(jMax);
-
-  // P = vars.x[0]
-  // r = vars.x[1]
-  // L = vars.x[2]
-  // T = vars.x[3]
+  double result;
+  double Tinverse = 0;
+  if (delta_t != 0)
+    {
+      Tinverse = 1.0/delta_t;
+    }
+  
 
   // Ultimately, G3J = L[j] - L[j-1] - (M[j]-M[j-1])*( Enuc - (cP[j]*(T[j]-T[j]^n)/delta_t) + (delta/rho[j])*(P[j]-P[j]^n)/delta_t )
-
-  for (int j=0; j < jMax; j++)
+  if (j==0)
     {
-      if (j==0)
-	{
-	  result[j] = vars.x[2][j] - (vars.M[1][j]) *(vars.Enuc[j] - (vars.cP[j]*(vars.x[3][j] - vars.x_old[3][j])/delta_t ) -  ( (vars.delta[j]/vars.rho[j]) * ( (vars.x[0][j]-vars.x_old[0][j])/delta_t )));
-	}
-
-      else
-	{
-	result[j] = vars.x[2][j] - vars.x[2][j-1] - (vars.M[1][j]-vars.M[1][j-1]) *(vars.Enuc[j] - (vars.cP[j]*(vars.x[3][j] - vars.x_old[3][j])/delta_t ) -  ( (vars.delta[j]/vars.rho[j]) * ( (vars.x[0][j]-vars.x_old[0][j])/delta_t )));
-      }
-
+      result = vars.L[j] - (vars.dMwhole[j]) *(vars.Enuc[j] - (vars.cP[j]*(vars.T[j] - vars.oldT[j])*Tinverse) -  ( (vars.delta[j]/vars.rho[j]) * ( (vars.P[j]-vars.oldP[j])* Tinverse)));
     }
-
+  else
+    {
+      result = vars.L[j] - vars.L[j-1] - (vars.dMwhole[j]) *(vars.Enuc[j] - (vars.cP[j]*(vars.T[j] - vars.oldT[j])*Tinverse ) -  ( (vars.delta[j]/vars.rho[j]) * ( (vars.P[j]-vars.oldP[j])*Tinverse )));
+    }
+  
   return result;
 }
 
-
-vector<double> G3J(bundle &vars, bundle &varied_vars, int varied_param_index, int offset)
-{
-
-
-  vector<double> result(jMax);
-  double temp;
-  // P = vars.x[0]
-  // r = vars.x[1]
-  // L = vars.x[2]
-  // T = vars.x[3]
-
-  // Ultimately, G3J = L[j] - L[j-1] - (M[j]-M[j-1])*( Enuc - (cP[j]*(T[j]-T[j]^n)/delta_t) + (delta/rho[j])*(P[j]-P[j]^n)/delta_t )
-
-  for (int j=0; j <jMax ; j++)
-    {
-      // Deal with the offset variation business
-      if ((j+offset > 0) || (j+offset <= jMax))
-	{
-	  temp = vars.x[varied_param_index][j+offset];
-	  vars.x[varied_param_index][j+offset] = varied_vars.x[varied_param_index][j+offset];
-	}
-
-      if (j==0) // Again, this boundary condition may not be formulated correctly...
-	{
-	  result[j] = vars.x[2][j] - (vars.M[1][j]) *(vars.Enuc[j] - (vars.cP[j]*(vars.x[3][j] - vars.x_old[3][j])/delta_t ) -  ( (vars.delta[j]/vars.rho[j]) * ( (vars.x[0][j]-vars.x_old[0][j])/delta_t )));
-	}
-
-      else
-	{
-	result[j] = vars.x[2][j] - vars.x[2][j-1] - (vars.M[1][j]-vars.M[1][j-1]) *(vars.Enuc[j] - (vars.cP[j]*(vars.x[3][j] - vars.x_old[3][j])/delta_t ) -  ( (vars.delta[j]/vars.rho[j]) * ( (vars.x[0][j]-vars.x_old[0][j])/delta_t )));
-      }
-
-      // Finish dealing with the offset variation business
-      if ((j+offset > 0) || (j+offset <= jMax))
-	{
-	  vars.x[varied_param_index][j+offset] = temp;
-	}
-
-
-    }
-
-  return result;
-
-
-}
