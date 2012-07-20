@@ -75,8 +75,7 @@ void modifiedHenyeyMatrixInversion(struct bundle &vars, vec3d C, vec3d D, vec3d 
 	      OneD bar = matrixMultiply(TempC,TempA);
 	      TempSum = addMatrix(TempG,bar);
 	      
-	    }
-
+	    }	  	  	  
 
 	  /*
 	    Here, TempA and TempB are updated to reflect

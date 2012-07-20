@@ -25,6 +25,7 @@
 #include "modifiedHenyeyMatrixInversion.h"
 #include "pause_for_user.h"
 #include "atmos.h"
+#include "ReadInArray.h"
 using namespace std;
 
 
@@ -63,23 +64,37 @@ int main()
   vars.eos_var_update(-1);
   cout<<"\nDone setting the lookup/update eos vars!\n";
 
-  atmos(vars.r[jMax-1], vars.L[jMax-1], vars.dMwhole[jMax-1], vars.Mwhole[jMax-1], vars.EOS);
+  OneD temp = atmos(vars.r[jMax-1], vars.L[jMax-1], vars.dMwhole[jMax-1], vars.Mwhole[jMax-1], vars.EOS);
   cout<<"\nDone running the atmos subroutine!\n";
 
-  vec2d G(jMax,iMax,0);
-  vec3d C(jMax,iMax,iMax,0), D(jMax,iMax,iMax,0),E(jMax,iMax,iMax,0);
-  NewCalcCDEG(vars, G, C, D, E);
-  cout<<"\nDone running the NewCalcCDEG subroutine!\n";
-  
-  // Test out the Henyey Matrix inversion routine
-  modifiedHenyeyMatrixInversion(vars,C,D,E,G);
-  cout<<"\nDone running the Henyey Matrix inversion subroutine!\n";
-  cout<<"\nHere are the corrections to the first few cells:\n";
-  cout<<"dP: "; printMatrix(vars.dP,jMax-5,jMax); cout<<endl;
-  cout<<"dr: "; printMatrix(vars.dr,jMax-5,jMax); cout<<endl; 
-  cout<<"dL: "; printMatrix(vars.dL,jMax-5,jMax); cout<<endl;  
-  cout<<"dT: "; printMatrix(vars.dT,jMax-5,jMax); cout<<endl;
+  // Reset the outer P/T/rho values accordingly
+  vars.P[jMax-1] = temp[2];
+  vars.T[jMax-1] = temp[3];
+  vars.rho[jMax-1] = temp[4];
 
+  // Read in data from the cdeg_corrections.txt file to a 2D array
+  // As an idea of how I'd like this function to operate:...
+  // vec2d corrections = ReadInArray('cdeg_corrections.txt',jMax,iMax);
+  // vec2d Gvals = ReadInArray('g_values.txt',jMax,iMax);
+  // vec3d Cvals = ReadInArray('c_values.txt',jMax,iMax,iMax);
+  // vec3d Dvals = ReadInArray('d_values.txt',jMax,iMax,iMax);
+  // vec3d Evals = ReadInArray('e_values.txt',jMax,iMax,iMax);
+
+  // vec2d G(jMax,iMax,0);
+  // vec3d C(jMax,iMax,iMax,0), D(jMax,iMax,iMax,0),E(jMax,iMax,iMax,0);
+  // NewCalcCDEG(vars, G, C, D, E);
+  // cout<<"\nDone running the NewCalcCDEG subroutine!\n";
+
+  // // Test out the Henyey Matrix inversion routine
+  // modifiedHenyeyMatrixInversion(vars,C,D,E,G);
+  // cout<<"\nDone running the Henyey Matrix inversion subroutine!\n";
+  
+  // cout<<"\nHere are the corrections to the first few cells:\n";
+  // cout<<"dP: "; printMatrix(vars.dP,0,5); cout<<endl;
+  // cout<<"dr: "; printMatrix(vars.dr,0,5); cout<<endl; 
+  // cout<<"dL: "; printMatrix(vars.dL,0,5); cout<<endl;  
+  // cout<<"dT: "; printMatrix(vars.dT,0,5); cout<<endl;
+  
   cout<<"\nDone!\n";
 
   

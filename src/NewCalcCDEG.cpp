@@ -26,11 +26,10 @@ void NewCalcCDEG(bundle &vars, vec2d &myG, vec3d &myC, vec3d &myD, vec3d &myE)
   OneD G1(jMax), G2(jMax), G3(jMax), G4(jMax);
   vec3d C(jMax,iMax,kMax,0), D(jMax,iMax,kMax,0), E(jMax,iMax,kMax,0);
   //  double epsilon = 1e-5;
-  double epsilon = 5e-4;
+  double epsilon = 5e-9;
   double dP, dr, dL, dT;
 
-  C[0] = vec2d(4,4,0);
-  E[jMax-1] = vec2d(4,4,0);
+
 
   for (int j = 0; j < jMax -1 ; j++)
     {
@@ -60,24 +59,27 @@ void NewCalcCDEG(bundle &vars, vec2d &myG, vec3d &myC, vec3d &myD, vec3d &myE)
   
 
   // Calculating the C/D/E derivatives  
-  for (int j = 0; j < jMax-1; j++)
+  for (int j = 0; j < jMax; j++)
     {
 
+      // Need to make sure you don't accidentally end up with dX = 0
+      // because that'll give you NANs in your matrices, and that's not good.
+      
       if (j+1 == jMax)
 	{
-	  dP = epsilon * (vars.P[j]-vars.P[j-1]);
-	  dr = epsilon * (vars.r[j]-vars.r[j-1]);
-	  dL = epsilon * (vars.L[j]-vars.L[j-1]);
-	  dT = epsilon * (vars.T[j] - vars.T[j-1]);
+	  dP = epsilon * (vars.P[j] + vars.P[j-1]);
+	  dr = epsilon * (vars.r[j] + vars.r[j-1]);
+	  dL = epsilon * (vars.L[j] + vars.L[j-1]);
+	  dT = epsilon * (vars.T[j] + vars.T[j-1]);
 	}
       else
 	{
-	  dP = epsilon * (vars.P[j+1] - vars.P[j]);
-	  dr = epsilon * (vars.r[j+1] - vars.r[j]);
-	  dL = epsilon * (vars.L[j+1] - vars.L[j]);
-	  dT = epsilon * (vars.T[j+1] - vars.T[j]);
+	  dP = epsilon * (vars.P[j+1] + vars.P[j]);
+	  dr = epsilon * (vars.r[j+1] + vars.r[j]);
+	  dL = epsilon * (vars.L[j+1] + vars.L[j]);
+	  dT = epsilon * (vars.T[j+1] + vars.T[j]);
 	}
-
+      //      cout<<"j = "<<j<<"\tdP = "<<dP<<"\tdr = "<<dr<<"\tdL = "<<dL<<"\tdT = "<<dT<<endl;
 
       vars.P[j]+= dP;
       vars.eos_var_update(j);
@@ -174,6 +176,10 @@ void NewCalcCDEG(bundle &vars, vec2d &myG, vec3d &myC, vec3d &myD, vec3d &myE)
 
   // Evaluate the CDEG values at the outer (atmospheric) boundary
   int j = jMax-1;
+  C[0] = vec2d(4,4,0);
+  D[j] = vec2d(4,4,0);
+  E[j] = vec2d(4,4,0);
+
   C[j][1][1] = 1.0;
   C[j][2][2] = 1.0;
   D[j][0][0] = -1.0;
