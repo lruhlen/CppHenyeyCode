@@ -84,90 +84,90 @@ void NewCalcCDEG(bundle &vars, vec2d &myG, vec3d &myC, vec3d &myD, vec3d &myE)
       vars.P[j]+= dP;
       vars.eos_var_update(j);
       D[j][0][0] = (G1[j] - G1J(vars,j) ) / dP;
-      D[j][0][1] = (G2[j] - G2J(vars,j) ) / dP;
-      D[j][0][2] = (G3[j] - G3J(vars,j) ) / dP ;
-      D[j][0][3] = (G4[j] - G4J(vars,j) ) / dP;
+      D[j][1][0] = (G2[j] - G2J(vars,j) ) / dP;
+      D[j][2][0] = (G3[j] - G3J(vars,j) ) / dP ;
+      D[j][3][0] = (G4[j] - G4J(vars,j) ) / dP;
       if (j+1 < jMax-1)
 	{
 	  C[j+1][0][0] = (G1[j+1] - G1J(vars,j+1) ) / dP;
-	  C[j+1][0][1] = (G2[j+1] - G2J(vars,j+1) ) / dP;
-	  C[j+1][0][2] = (G3[j+1] - G3J(vars,j+1) ) / dP;
-	  C[j+1][0][3] = (G4[j+1] - G4J(vars,j+1) ) / dP;
+	  C[j+1][1][0] = (G2[j+1] - G2J(vars,j+1) ) / dP;
+	  C[j+1][2][0] = (G3[j+1] - G3J(vars,j+1) ) / dP;
+	  C[j+1][3][0] = (G4[j+1] - G4J(vars,j+1) ) / dP;
 	}
       if (j > 0)
 	{
 	  E[j-1][0][0] = (G1[j-1] - G1J(vars,j-1) ) / dP;
-	  E[j-1][0][1] = (G2[j-1] - G2J(vars,j-1) ) / dP;
-	  E[j-1][0][2] = (G3[j-1] - G3J(vars,j-1) ) / dP;
-	  E[j-1][0][3] = (G4[j-1] - G4J(vars,j-1) ) / dP;
+	  E[j-1][1][0] = (G2[j-1] - G2J(vars,j-1) ) / dP;
+	  E[j-1][2][0] = (G3[j-1] - G3J(vars,j-1) ) / dP;
+	  E[j-1][3][0] = (G4[j-1] - G4J(vars,j-1) ) / dP;
 	}
       vars.P[j]-= dP;
 
  
       vars.r[j]+= dr;
       vars.eos_var_update(j);  // Note: this update will operate on the new r value, and the original P value at that location
-      D[j][1][0] = (G1[j] - G1J(vars,j) ) / dr;
+      D[j][0][1] = (G1[j] - G1J(vars,j) ) / dr;
       D[j][1][1] = (G2[j] - G2J(vars,j) ) / dr;
-      D[j][1][2] = (G3[j] - G3J(vars,j) ) / dr;
-      D[j][1][3] = (G4[j] - G4J(vars,j) ) / dr;
+      D[j][2][1] = (G3[j] - G3J(vars,j) ) / dr;
+      D[j][3][1] = (G4[j] - G4J(vars,j) ) / dr;
       if (j+1 < jMax-1)
 	{
-	  C[j+1][1][0] = (G1[j+1] - G1J(vars,j+1) ) / dr;
+	  C[j+1][0][1] = (G1[j+1] - G1J(vars,j+1) ) / dr;
 	  C[j+1][1][1] = (G2[j+1] - G2J(vars,j+1) ) / dr;
-	  C[j+1][1][2] = (G3[j+1] - G3J(vars,j+1) ) / dr;
-	  C[j+1][1][3] = (G4[j+1] - G4J(vars,j+1) ) / dr;
+	  C[j+1][2][1] = (G3[j+1] - G3J(vars,j+1) ) / dr;
+	  C[j+1][3][1] = (G4[j+1] - G4J(vars,j+1) ) / dr;
 	}
       if (j > 0)
 	{
-	  E[j-1][1][0] = (G1[j-1] - G1J(vars,j-1) ) / dr;
+	  E[j-1][0][1] = (G1[j-1] - G1J(vars,j-1) ) / dr;
 	  E[j-1][1][1] = (G2[j-1] - G2J(vars,j-1) ) / dr;
-	  E[j-1][1][2] = (G3[j-1] - G3J(vars,j-1) ) / dr;
-	  E[j-1][1][3] = (G4[j-1] - G4J(vars,j-1) ) / dr;
+	  E[j-1][2][1] = (G3[j-1] - G3J(vars,j-1) ) / dr;
+	  E[j-1][3][1] = (G4[j-1] - G4J(vars,j-1) ) / dr;
 	}
       vars.r[j]-= dr;
 
 
       vars.L[j]+= dL;
       vars.eos_var_update(j);
-      D[j][2][0] = (G1[j] - G1J(vars,j) ) / dL;
-      D[j][2][1] = (G2[j] - G2J(vars,j) ) / dL ;
+      D[j][0][2] = (G1[j] - G1J(vars,j) ) / dL;
+      D[j][1][2] = (G2[j] - G2J(vars,j) ) / dL ;
       D[j][2][2] = (G3[j] - G3J(vars,j) ) / dL;
-      D[j][2][3] = (G4[j] - G4J(vars,j) ) / dL;
+      D[j][3][2] = (G4[j] - G4J(vars,j) ) / dL;
       if (j+1 < jMax-1)
 	{
-	  C[j+1][2][0] = (G1[j+1] - G1J(vars,j+1) ) / dL;
-	  C[j+1][2][1] = (G2[j+1] - G2J(vars,j+1) ) / dL;
+	  C[j+1][0][2] = (G1[j+1] - G1J(vars,j+1) ) / dL;
+	  C[j+1][1][2] = (G2[j+1] - G2J(vars,j+1) ) / dL;
 	  C[j+1][2][2] = (G3[j+1] - G3J(vars,j+1) ) / dL;
-	  C[j+1][2][3] = (G4[j+1] - G4J(vars,j+1) ) / dL;
+	  C[j+1][3][2] = (G4[j+1] - G4J(vars,j+1) ) / dL;
 	}
       if (j > 0)
 	{
-	  E[j-1][2][0] = (G1[j-1] - G1J(vars,j-1) ) / dL;
-	  E[j-1][2][1] = (G2[j-1] - G2J(vars,j-1) ) / dL;
+	  E[j-1][0][2] = (G1[j-1] - G1J(vars,j-1) ) / dL;
+	  E[j-1][1][2] = (G2[j-1] - G2J(vars,j-1) ) / dL;
 	  E[j-1][2][2] = (G3[j-1] - G3J(vars,j-1) ) / dL;
-	  E[j-1][2][3] = (G4[j-1] - G4J(vars,j-1) ) / dL;
+	  E[j-1][3][2] = (G4[j-1] - G4J(vars,j-1) ) / dL;
 	}
       vars.L[j]-= dL;
 
 
       vars.T[j]+= dT;
       vars.eos_var_update(j);
-      D[j][3][0] = (G1[j] - G1J(vars,j) ) / dT;
-      D[j][3][1] = (G2[j] - G2J(vars,j) ) / dT;
-      D[j][3][2] = (G3[j] - G3J(vars,j) ) / dT;
+      D[j][0][3] = (G1[j] - G1J(vars,j) ) / dT;
+      D[j][1][3] = (G2[j] - G2J(vars,j) ) / dT;
+      D[j][2][3] = (G3[j] - G3J(vars,j) ) / dT;
       D[j][3][3] = (G4[j] - G4J(vars,j) ) / dT;
       if (j+1 < jMax-1)
 	{
-	  C[j+1][3][0] = (G1[j+1] - G1J(vars,j+1) ) / dT;
-	  C[j+1][3][1] = (G2[j+1] - G2J(vars,j+1) ) / dT;
-	  C[j+1][3][2] = (G3[j+1] - G3J(vars,j+1) ) / dT;
+	  C[j+1][0][3] = (G1[j+1] - G1J(vars,j+1) ) / dT;
+	  C[j+1][1][3] = (G2[j+1] - G2J(vars,j+1) ) / dT;
+	  C[j+1][2][3] = (G3[j+1] - G3J(vars,j+1) ) / dT;
 	  C[j+1][3][3] = (G4[j+1] - G4J(vars,j+1) ) / dT;
 	}
       if (j > 0)
 	{
-	  E[j-1][3][0] = (G1[j-1] - G1J(vars,j-1) ) / dT;
-	  E[j-1][3][1] = (G2[j-1] - G2J(vars,j-1) ) / dT;
-	  E[j-1][3][2] = (G3[j-1] - G3J(vars,j-1) ) / dT;
+	  E[j-1][0][3] = (G1[j-1] - G1J(vars,j-1) ) / dT;
+	  E[j-1][1][3] = (G2[j-1] - G2J(vars,j-1) ) / dT;
+	  E[j-1][2][3] = (G3[j-1] - G3J(vars,j-1) ) / dT;
 	  E[j-1][3][3] = (G4[j-1] - G4J(vars,j-1) ) / dT;
 	}
       vars.T[j]-=dT;

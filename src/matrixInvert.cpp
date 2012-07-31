@@ -26,13 +26,6 @@ vec2d matrixInvert(vec2d input)
   int max_index = 0;
   double overallMin = FindNonZeroMin(left);
 
-  if (debugflag >=4)
-    {
-      cout<<endl<<"overallMin = "<<overallMin<<endl;
-      cout<<"The input matrix here is :\n";
-      printMatrix(left);
-      
-    }
 
   // Set up the 'right hand side' identity matrix
   // This will become the inverse to 'left', and 
@@ -41,13 +34,6 @@ vec2d matrixInvert(vec2d input)
     {
       right[i][i] = 1.0;
     }
-
-
-    
-  // left = matrixDivide(overallMin,left);
-  //right = matrixDivide(overallMin,right);
-
-
 
   // Order the rows of the 'left hand side' matrix
   // in decreasing order of the pivot-point 
@@ -69,50 +55,11 @@ vec2d matrixInvert(vec2d input)
 	      max = left[row][col];
 	      max_index = row;
 	    }
-	  
-	  if (debugflag >=4)
-	    {
-	      cout<<"Search for the max val in row: "<<row+1<<"\t col: "<<col+1<<endl;
-	      cout<<"Current max val is "<<max<<endl;
-
-	      cout<<"HIT RETURN TO CONTINUE";
-	      getline(cin,continueHit);
-	      
-	    }
-
 	}
       
-
-      if (debugflag >=4)
-	{
-	  cout<<"Current max is "<<max<<" in row "<<max_index+1<<endl;
-	  cout<<"HIT RETURN TO CONTINUE";
-	  getline(cin,continueHit);
- 	      
-	}
-
-     
       // Make all of the pivot points equal to one
       left[max_index] = matrixDivide(max,left[max_index]);
       right[max_index] = matrixDivide(max,right[max_index]);
-
-//      pivinv = 1.0/max;
-//      left[max_index] = matrixMultiply(pivinv,left[max_index]);
-//      right[max_index] = matrixMultiply(pivinv,right[max_index]);
-//      
-      if (debugflag >=4)
-	{
-	  cout<<"In the process up upper-triangularizing the left matrix\n";
-	  printMatrix(left);
-	  cout<<endl;
-	  cout<<"The right hand matrix currently looks like this:\n";
-	  printMatrix(right);
-	  cout<<endl;
-
-	  cout<<"\nHIT RETURN TO CONTINUE \n";
-	  getline(cin,continueHit);
-	  
-	}
 
 
       // Put the row in its proper place
@@ -131,73 +78,18 @@ vec2d matrixInvert(vec2d input)
 
 	      temprow_left = matrixMultiply(scale,left[col]);
 	      temprow_right = matrixMultiply(scale,right[col]);
-
-	      if (debugflag >=4)
-		{
-		  cout<<"Eliminating elements in row: "<<backrow+1<<" col: "<<col+1<<" by adding\n ";
-		  printMatrix(temprow_left);
-
-		  cout<<" to \n "; printMatrix(left[backrow]); cout<<endl;
-
-		  cout<<"The right hand matrix currently looks like this:\n";
-		  printMatrix(right);
-		  cout<<endl;
-
-
-		  cout<<"\nHIT RETURN TO CONTINUE \n";
-		  getline(cin,continueHit);	      
-		}
-
-
-
 	      
 	      left[backrow] = addMatrix(temprow_left,left[backrow]);
 	      right[backrow] = addMatrix(temprow_right,right[backrow]);
 
-
-	      
-
-
-	      if (debugflag >=4)
-		{
-		  cout<<"This leads to the following left-hand matrix:\n";
-		  printMatrix(left);
-		  cout<<"The right hand matrix currently looks like this:\n";
-		  printMatrix(right);
-		  cout<<endl;
-
-
-		  cout<<"\nHIT RETURN TO CONTINUE \n";
-		  getline(cin,continueHit);	      
-		}
-
-
 	    }
-
-	}
-      
+	}      
     }
 
-
-
-  if (debugflag >=4 )
-    {
-      cout<<"This matrix should be upper triangular here. If it's not... PANIC!\n";
-      printMatrix(left);
-      cout<<endl;
-
-      cout<<"The right hand matrix currently looks like this:\n";
-      printMatrix(right);
-      cout<<endl;
-      cout<<"\nHIT RETURN TO CONTINUE \n";
-      getline(cin,continueHit);
-
-    }
 
   // At this point, 'left' has been transformed into an upper-triangular matrix.
   // Now, we need to back-solve 'left' to get it into identity form.
   // Again, duplicate all 
-  
   for (int row = num-1; row > 0; row--)
     {
 	  
@@ -210,40 +102,14 @@ vec2d matrixInvert(vec2d input)
 
 	  temprow_left = matrixMultiply(scale,left[row]);
 	  temprow_right = matrixMultiply(scale,right[row]);
-	  
-	      if (debugflag >=4)
-		{
-		  cout<<"Eliminating elements in row: "<<elim_row+1<<" col: "<<col+1<<" by adding\n ";
-		  printMatrix(temprow_left);
-
-		  cout<<" to \n "; printMatrix(left[elim_row]); cout<<endl;
-		  cout<<"\nHIT RETURN TO CONTINUE \n";
-		  getline(cin,continueHit);	      
-		}
 
 	  left[elim_row] = addMatrix(temprow_left,left[elim_row]);
 	  right[elim_row] = addMatrix(temprow_right,right[elim_row]);
 	}
-
-      if (debugflag>=4)
-	{
-
-	  cout<<"row = "<<row<<endl;
-	  cout<<"left matrix currently looks like this:\n";
-	  printMatrix(left);
-	  cout<<endl;
-	  cout<<"\nHIT RETURN TO CONTINUE \n";
-	  getline(cin,continueHit);
-
-	}
     }
   
 
-  //    left = matrixMultiply(overallMin,left);
-  //  right = matrixMultiply(overallMin,right);
-
-
-  if (debugflag>=4)
+  if (debugflag>=5)
     {
       cout<<"===============================================\n";
       cout<<"In matrixInvert: The matrix we started out with:\n";

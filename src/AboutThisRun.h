@@ -22,8 +22,8 @@ const double Tmax = 0.0;
 const double delta_t = 0.0;
 const double tolerance = 1e-4;
 //const double epsilon = 0.1; // Setting the upper limit for the size of corrections to apply to the dependent variables 
-//const int jMax = 200;
-const int jMax = 551;
+const int jMax = 298;
+//const int jMax = 551;
 //const int jMax = 6;
 const int iMax = 4;
 const int kMax = 4;
@@ -54,7 +54,7 @@ const int max_num_P_bins = 76;
 
 
 // Set the level of debugging statements to ignore/print out.
-const int debugflag = 2;
+const int debugflag = 4;
 const string temp_plot_path = "/Users/laurel/Desktop/Research/CppHenyeyCode/CodingSandbox/debugging_graphs/temp/";
 const string plot_path = "/Users/laurel/Desktop/Research/CppHenyeyCode/CodingSandbox/debugging_graphs/temp/";
 

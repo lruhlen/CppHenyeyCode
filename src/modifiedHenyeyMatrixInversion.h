@@ -27,6 +27,7 @@
 #include <float.h>
 #include "matrixInvert.h"
 #include "cleanMatrix.h"
+#include "fourbyfourinvert.h"
 using namespace std;
 void modifiedHenyeyMatrixInversion(struct bundle &vars, vec3d C, vec3d D, vec3d E, vec2d G);
 
