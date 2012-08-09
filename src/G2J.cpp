@@ -19,8 +19,11 @@ double G2J(bundle &vars, int j)
  if (j==0)
    {
      result = pow(vars.r[j],3)  - (vars.Mwhole[j] * (3.0 / (4.0 *pi * vars.rho[j])));
-     //     cout<<"R^3 = "<<pow(vars.r[j],3)<<endl;
-     //     cout<<"second part = "<<(vars.Mwhole[j] * (3.0 / (4.0 *pi * vars.rho[j])))<<endl;
+     // cout<<"\nG2J calcs:\n";
+     // cout<<"\tR^3 = "<<pow(vars.r[j],3)<<endl;
+     // cout<<"\tSecond part = "<<-1.0* (vars.Mwhole[j] * (3.0 / (4.0 *pi * vars.rho[j])))<<endl;
+     // cout<<"\t\t(vars.Mwhole[j] ) =  "<<vars.Mwhole[j]<<endl;
+     // cout<<"\t\t (3.0 / (4.0 *pi * vars.rho[j])) =  "<<(3.0 / (4.0 *pi * vars.rho[j]))<<endl;
    }
  
  else

@@ -130,7 +130,7 @@ OneD matrixMultiply(struct vec2d &matrixA, OneD &vectorB)
  
   for (int row=0; row < A_rows; row++)
     {
- 	  result[row] = dotProduct(matrixA[row],vectorB);
+      result[row] = dotProduct(matrixA[row],vectorB);
     }
 
   return result; 

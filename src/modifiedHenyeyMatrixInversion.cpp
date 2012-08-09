@@ -46,28 +46,18 @@ void modifiedHenyeyMatrixInversion(struct bundle &vars, vec3d C, vec3d D, vec3d 
 	  S[j] = D[j];
 	  Sum[j] = G[j];
 	}
-      else // Fill this case in latter...
+      else 
 	{
-	  /* Remember, neither TempA nor TempB have 
-	     yet been updated from their values 
-	     at the j-1 index
-	     at this point, which is why we can use
-	     them without any further updating or
-	     variable shuffling in the calculations 
-	     below.
-	  */
 	  S[j] = matrixMultiply(C[j],B[j-1]);
 	  S[j] = addMatrix(S[j],D[j]);
 	  
 	  Sum[j] = matrixMultiply(C[j],A[j-1]);
-	  Sum[j] = addMatrix(G[j],Sum[j]);
-	  
+	  Sum[j] = addMatrix(G[j],Sum[j]);	  
 	}	  	  	  
+
       InverseS[j] = fourbyfourinvert(S[j]);
-      
       A[j] = matrixMultiply(InverseS[j],Sum[j]);
       A[j] = matrixMultiply(-1.0,A[j]);
-      
       B[j] = matrixMultiply(InverseS[j],E[j]);
       B[j] = matrixMultiply(-1.0,B[j]);     
     }
@@ -107,18 +97,6 @@ void modifiedHenyeyMatrixInversion(struct bundle &vars, vec3d C, vec3d D, vec3d 
 
       tempJ = tempJminus;
     }
-
-
-  // cout<<"\nSum vector at j=0:\n";
-  // printMatrix(Sum[0]);
-  // cout<<"\nS matrix at j=0:\n";
-  // printMatrix(S[0]);
-  // cout<<"\nInverseS at j=0:\n";
-  // printMatrix(InverseS[0]);
-  // cout<<"\nA vector at j=0:\n";
-  //   printMatrix(A[0]);
-  //   cout<<"\nB matrix at j=0:\n";
-  //   printMatrix(B[0]);
 
   
 }

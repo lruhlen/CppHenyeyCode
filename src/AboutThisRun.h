@@ -18,8 +18,8 @@ using namespace std;
    ============================================== */
 
 const double Tmax = 0.0;
-//const double delta_t = 3.2e10; // this is about 1000 years...
-const double delta_t = 0.0;
+const double delta_t = 1.0e11; // this is about 1000 years...
+//const double delta_t = 0.0;
 const double tolerance = 1e-4;
 //const double epsilon = 0.1; // Setting the upper limit for the size of corrections to apply to the dependent variables 
 const int jMax = 298;

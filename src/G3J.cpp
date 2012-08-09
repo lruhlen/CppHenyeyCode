@@ -26,6 +26,10 @@ double G3J(bundle &vars, int j)
   if (j==0)
     {
       result = vars.L[j] - (vars.dMwhole[j]) *(vars.Enuc[j] - (vars.cP[j]*(vars.T[j] - vars.oldT[j])*Tinverse) -  ( (vars.delta[j]/vars.rho[j]) * ( (vars.P[j]-vars.oldP[j])* Tinverse)));
+      // cout<<"\nG3J calcs:\n";
+      // cout<<"\tvars.L[j] = "<<vars.L[j]<<endl;
+      // cout<<"\tSecond part = "<< -1.0*(vars.dMwhole[j]) *(vars.Enuc[j] - (vars.cP[j]*(vars.T[j] - vars.oldT[j])*Tinverse)-  ( (vars.delta[j]/vars.rho[j]) * ( (vars.P[j]-vars.oldP[j])* Tinverse))) <<endl;
+      
     }
   else
     {
