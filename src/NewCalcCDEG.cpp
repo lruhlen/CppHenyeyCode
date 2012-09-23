@@ -10,6 +10,7 @@
 #include "global.h"
 #include "printVector.h"
 #include "printMatrix.h"
+#include "matrixMultiply.h"
 #include "matrixTranspose.h"
 #include "G1J.h"
 #include "G2J.h"
@@ -31,7 +32,8 @@ void NewCalcCDEG(bundle &vars, vec2d &myG, vec3d &myC, vec3d &myD, vec3d &myE)
 
 
 
-  for (int j = 0; j < jMax -1 ; j++)
+  //  for (int j = 0; j < jMax -1 ; j++)
+  for (int j=0; j < jMax; j++)
     {
         // Calculate the regular G's:
       G1[j] = G1J(vars,j);
@@ -57,7 +59,7 @@ void NewCalcCDEG(bundle &vars, vec2d &myG, vec3d &myC, vec3d &myD, vec3d &myE)
   // cout<<"dM = "<<vars.dMwhole[jMax-1]<<endl;
   // cout<<"M = "<<vars.Mwhole[jMax-1]<<endl;
   
-
+  
   // Calculating the C/D/E derivatives  
   for (int j = 0; j < jMax; j++)
     {
@@ -83,6 +85,7 @@ void NewCalcCDEG(bundle &vars, vec2d &myG, vec3d &myC, vec3d &myD, vec3d &myE)
 
       vars.P[j]+= dP;
       vars.eos_var_update(j);
+ 
       D[j][0][0] = (G1[j] - G1J(vars,j) ) / dP;
       D[j][1][0] = (G2[j] - G2J(vars,j) ) / dP;
       D[j][2][0] = (G3[j] - G3J(vars,j) ) / dP ;
@@ -180,11 +183,15 @@ void NewCalcCDEG(bundle &vars, vec2d &myG, vec3d &myC, vec3d &myD, vec3d &myE)
   D[j] = vec2d(4,4,0);
   E[j] = vec2d(4,4,0);
 
-  C[j][1][1] = 1.0;
-  C[j][2][2] = 1.0;
-  D[j][0][0] = -1.0;
-  D[j][2][2] = -1.0;
-  D[j][3][3] = -1.0;
+  C = matrixMultiply(-1.0,C);
+  D = matrixMultiply(-1.0,D);
+  E = matrixMultiply(-1.0,E);
+
+  C[j][1][1] = -1.0;
+  C[j][2][2] = -1.0;
+  D[j][0][0] = 1.0;
+  D[j][2][2] = 1.0;
+  D[j][3][3] = 1.0;
 
   OneD atConstL(5), atConstR(5);
   double Lnew = (1.0 + epsilon) * vars.L[j];
@@ -199,12 +206,12 @@ void NewCalcCDEG(bundle &vars, vec2d &myG, vec3d &myC, vec3d &myD, vec3d &myE)
   double RconstL = atConstL[1], PconstL = atConstL[2], TconstL = atConstL[3], RhoconstL = atConstL[4];
   double RconstR = atConstR[1], PconstR = atConstR[2], TconstR = atConstR[3], RhoconstR = atConstR[4];
 
-  D[j][0][1] = (PconstL - Porig) / dr;
-  D[j][0][2] = (PconstR - Porig) / dL;
-  D[j][1][1] = -1.0 + ( (RhoconstL -Rhoorig) / dr );
-  D[j][1][2] =  (RhoconstR - Rhoorig) / dL;
-  D[j][3][1] =  (TconstL - Torig) / dr;
-  D[j][3][2] =  (RconstR - Rorig) / dL;
+  D[j][0][1] = ((PconstL - Porig) / dr) * -1.0;
+  D[j][0][2] = ((PconstR - Porig) / dL) * -1.0;
+  D[j][1][1] = (-1.0 + ( (RhoconstL -Rhoorig) / dr )) * -1.0;
+  D[j][1][2] =  ((RhoconstR - Rhoorig) / dL) * -1.0;
+  D[j][3][1] =  ((TconstL - Torig) / dr) * -1.0;
+  D[j][3][2] =  ((RconstR - Rorig) / dL) * -1.0;
 
   // Set the 'return' values
   myC = C;

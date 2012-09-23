@@ -15,7 +15,9 @@
 #include "matrixTranspose.h"
 #include "dotProduct.h"
 #include "addMatrix.h"
+#include "subtractMatrix.h"
 #include "matrixMultiply.h"
+#include "matrixDivide.h"
 #include "convert_to_vec2d.h"
 #include "convert_from_vec2d.h"
 #include "FindMax.h"
@@ -28,6 +30,8 @@
 #include "matrixInvert.h"
 #include "cleanMatrix.h"
 #include "fourbyfourinvert.h"
+#include "ReadInArray.h"
+#include "FindNonZeroMax.h"
 using namespace std;
 void modifiedHenyeyMatrixInversion(struct bundle &vars, vec3d C, vec3d D, vec3d E, vec2d G);
 

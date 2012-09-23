@@ -12,7 +12,9 @@
 #include "matrixTranspose.h"
 #include "dotProduct.h"
 #include "addMatrix.h"
+#include "subtractMatrix.h"
 #include "matrixMultiply.h"
+#include "matrixDivide.h"
 #include "convert_to_vec2d.h"
 #include "convert_from_vec2d.h"
 #include "FindMax.h"
@@ -25,8 +27,13 @@
 #include "matrixInvert.h"
 #include "cleanMatrix.h"
 #include "fourbyfourinvert.h"
+#include "ReadInArray.h"
+#include "FindNonZeroMax.h"
+
 using namespace std;
 
+extern string filePath, versionNum;
+extern bool WriteOutput;
 
 void modifiedHenyeyMatrixInversion(struct bundle &vars, vec3d C, vec3d D, vec3d E, vec2d G)
 {
@@ -35,34 +42,104 @@ void modifiedHenyeyMatrixInversion(struct bundle &vars, vec3d C, vec3d D, vec3d 
   vec3d S(jMax,iMax,iMax), B(jMax,iMax,iMax), InverseS(jMax,iMax,iMax); 
   OneD tempJ(4), tempJminus(4);
 
+  vec3d PeterS(jMax,iMax,iMax) , PeterInverseS(jMax,iMax,iMax) ;
+  PeterS = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/n32_1Msun_Smatrices.txt",jMax,iMax,iMax);
+  PeterInverseS = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/n32_1Msun_inverseSmatrices.txt",jMax,iMax,iMax);
+  vec2d PeterSum(jMax,iMax);
+  PeterSum = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/n32_1Msun_Sum_values.txt",jMax,iMax);
+  //  vec3d tempS(jMax,iMax,iMax,0), tempAvg(jMax,iMax,iMax,0);
+
+
   //-----------------------------------------------------------
   // Forward-bootstrap the A and B values from j=0 to j=jMax-1
   //-----------------------------------------------------------
   for (int j=0; j<jMax; j++)
     {
       // Start with the j=0 special case
-      if (j==0)
-	{
+       if (j==0)
+       	{
 	  S[j] = D[j];
 	  Sum[j] = G[j];
-	}
-      else 
-	{
+       	}
+       else 
+       	{
 	  S[j] = matrixMultiply(C[j],B[j-1]);
 	  S[j] = addMatrix(S[j],D[j]);
-	  
+        
 	  Sum[j] = matrixMultiply(C[j],A[j-1]);
 	  Sum[j] = addMatrix(G[j],Sum[j]);	  
-	}	  	  	  
+       	}	  	  	  
 
-      InverseS[j] = fourbyfourinvert(S[j]);
-      A[j] = matrixMultiply(InverseS[j],Sum[j]);
-      A[j] = matrixMultiply(-1.0,A[j]);
-      B[j] = matrixMultiply(InverseS[j],E[j]);
-      B[j] = matrixMultiply(-1.0,B[j]);     
+       //       if (j < jMax-2)
+       // 	 {
+       InverseS[j] = fourbyfourinvert(S[j]);		   
+        	   // InverseS[j] = matrixInvert(S[j]);
+        // 	 }
+        // else
+        // 	 {
+	// 	   InverseS[j] = PeterInverseS[j];
+	// 	   Sum[j] = matrixMultiply(-1.0,PeterSum[j]);
+        // 	 }
+
+       //       InverseS[j] = fourbyfourinvert(S[j]);
+
+       //       Sum[j] = matrixMultiply(-1.0,PeterSum[j]);
+       A[j] = matrixMultiply(InverseS[j],Sum[j]);
+       A[j] = matrixMultiply(-1.0,A[j]);
+       B[j] = matrixMultiply(InverseS[j],E[j]);
+       B[j] = matrixMultiply(-1.0,B[j]);     
+       
     }
-  
-  
+
+  if (WriteOutput)
+    {
+      ofstream Aout, Bout, Sout, invSout, Sumout;
+
+      string tempName = filePath + "_A_debug_v" + versionNum + ".txt";
+      Aout.open(tempName.c_str());
+
+      tempName = filePath + "_B_debug_v" + versionNum + ".txt";
+      Bout.open(tempName.c_str());
+
+      tempName = filePath + "_S_debug_v" + versionNum + ".txt";
+      Sout.open(tempName.c_str());
+
+      tempName = filePath + "_invS_debug_v" + versionNum + ".txt";
+      invSout.open(tempName.c_str());
+
+      tempName = filePath + "_Sum_debug_v" + versionNum + ".txt";
+      Sumout.open(tempName.c_str());
+
+      
+      for (int j=0; j<jMax; j++)
+	{
+	  for(int i=0; i<iMax; i++)
+	    {
+	      Aout<<A[j][i]<<"\t";
+	      Sumout<<Sum[j][i]<<"\t";
+
+	      for (int k=0; k<iMax; k++)
+		{
+		  invSout<<InverseS[j][i][k]<<"\t";
+		  Sout<<S[j][i][k]<<"\t";
+		  Bout<<B[j][i][k]<<"\t";
+		}
+	    }
+	  Aout<<endl;
+	  Bout<<endl;
+	  Sout<<endl;
+	  invSout<<endl;
+	  Sumout<<endl;
+	}
+
+      Aout.close();
+      Bout.close();
+      Sout.close();
+      invSout.close();
+      Sumout.close();
+    }
+
+
   /*
     Solve for the dx surface values
   */ 

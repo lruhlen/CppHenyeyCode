@@ -7,6 +7,7 @@
 #include "convert_to_vec2d.h"
 #include "convert_from_vec2d.h"
 #include "printMatrix.h"
+#include "atmos.h"
 
 using namespace std;
 
@@ -19,16 +20,17 @@ double G2J(bundle &vars, int j)
  if (j==0)
    {
      result = pow(vars.r[j],3)  - (vars.Mwhole[j] * (3.0 / (4.0 *pi * vars.rho[j])));
-     // cout<<"\nG2J calcs:\n";
-     // cout<<"\tR^3 = "<<pow(vars.r[j],3)<<endl;
-     // cout<<"\tSecond part = "<<-1.0* (vars.Mwhole[j] * (3.0 / (4.0 *pi * vars.rho[j])))<<endl;
-     // cout<<"\t\t(vars.Mwhole[j] ) =  "<<vars.Mwhole[j]<<endl;
-     // cout<<"\t\t (3.0 / (4.0 *pi * vars.rho[j])) =  "<<(3.0 / (4.0 *pi * vars.rho[j]))<<endl;
    }
- 
+ else if (j < jMax-1)
+   {
+     result = pow(vars.r[j],3) - pow(vars.r[j-1],3) - ( (vars.Mwhole[j]-vars.Mwhole[j-1]) * (0.75 / ( pi * vars.rho[j]) ) );
+
+   }
  else
    {
-     result = pow(vars.r[j],3) - pow(vars.r[j-1],3) - ((vars.Mwhole[j]-vars.Mwhole[j-1]) * (3.0 / (4.0 *pi * vars.rho[j])));
+     OneD temp = atmos(vars.r[j], vars.L[j], vars.dMwhole[j], vars.Mwhole[j], vars.EOS);
+     result = 2.0*vars.r[j] - vars.r[j-1] - temp[1];
+     //     result = 2.0*vars.r[j] - vars.r[j-1] - vars.Ratm;
    }
  
  return result;

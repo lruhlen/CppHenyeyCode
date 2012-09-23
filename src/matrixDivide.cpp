@@ -27,7 +27,14 @@ vec3d matrixDivide(vec3d &matrixA, vec3d &matrixB)
 	{
 	  for (int k=0; k<z; k++)
 	    {
-	      result[i][j][k] = matrixA[i][j][k] / matrixB[i][j][k];
+	      if((matrixA[i][j][k] == 0) && (matrixB[i][j][k]==0))
+		{
+		  result[i][j][k] = 0.0;
+		}
+	      else
+		{
+		  result[i][j][k] = matrixA[i][j][k] / matrixB[i][j][k];
+		}
 	    }
 	}
     }
@@ -47,8 +54,14 @@ vec2d matrixDivide(vec2d &matrixA, vec2d &matrixB)
     {
       for (int j=0; j<y; j++)
 	{
-	  result[i][j] = matrixA[i][j] / matrixB[i][j];
-
+	  if((matrixA[i][j] == 0) && (matrixB[i][j]==0))
+	    {
+	      result[i][j] = 0.0;
+	    }
+	  else
+	    {
+	      result[i][j] = matrixA[i][j] / matrixB[i][j];
+	    }
 	}
     }
   return result;
@@ -65,7 +78,14 @@ vector<double> matrixDivide(vector<double> &matrixA, vector<double> &matrixB)
 
   for (int i=0; i<x; i++)
     {
+      if((matrixA[i] == 0) && (matrixB[i]==0))
+	{
+	  result[i] = 0.0;
+	}
+      else
+	{
 	  result[i] = matrixA[i] / matrixB[i];
+	}
     }
   return result;
 

@@ -7,7 +7,7 @@
 #include "convert_to_vec2d.h"
 #include "convert_from_vec2d.h"
 #include "printMatrix.h"
-
+#include "atmos.h"
 using namespace std;
 
 
@@ -20,21 +20,18 @@ double G3J(bundle &vars, int j)
     {
       Tinverse = 1.0/delta_t;
     }
-  
-
-  // Ultimately, G3J = L[j] - L[j-1] - (M[j]-M[j-1])*( Enuc - (cP[j]*(T[j]-T[j]^n)/delta_t) + (delta/rho[j])*(P[j]-P[j]^n)/delta_t )
   if (j==0)
     {
-      result = vars.L[j] - (vars.dMwhole[j]) *(vars.Enuc[j] - (vars.cP[j]*(vars.T[j] - vars.oldT[j])*Tinverse) -  ( (vars.delta[j]/vars.rho[j]) * ( (vars.P[j]-vars.oldP[j])* Tinverse)));
-      // cout<<"\nG3J calcs:\n";
-      // cout<<"\tvars.L[j] = "<<vars.L[j]<<endl;
-      // cout<<"\tSecond part = "<< -1.0*(vars.dMwhole[j]) *(vars.Enuc[j] - (vars.cP[j]*(vars.T[j] - vars.oldT[j])*Tinverse)-  ( (vars.delta[j]/vars.rho[j]) * ( (vars.P[j]-vars.oldP[j])* Tinverse))) <<endl;
-      
+      result = vars.L[j] - (vars.dMwhole[j]) *(vars.Enuc[j] - (vars.cP[j]*(vars.T[j] - vars.oldT[j])*Tinverse) +  ( (vars.delta[j]/vars.rho[j]) * ( (vars.P[j]-vars.oldP[j])* Tinverse)));      
     }
-  else
+  else// if (j<jMax-1)
     {
-      result = vars.L[j] - vars.L[j-1] - (vars.dMwhole[j]) *(vars.Enuc[j] - (vars.cP[j]*(vars.T[j] - vars.oldT[j])*Tinverse ) -  ( (vars.delta[j]/vars.rho[j]) * ( (vars.P[j]-vars.oldP[j])*Tinverse )));
+      result = vars.L[j] - vars.L[j-1] - (vars.dMwhole[j]) *(vars.Enuc[j] - (vars.cP[j]*(vars.T[j] - vars.oldT[j])*Tinverse ) +  ( (vars.delta[j]/vars.rho[j]) * ( (vars.P[j]-vars.oldP[j])*Tinverse )));
     }
+  // else
+  //   { // Not exactly sure how the outer boundary condition enters into it, here...
+  //     result = vars.L[j] - vars.L[j-1];
+  //   }
   
   return result;
 }

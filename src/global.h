@@ -99,6 +99,7 @@ class bundle : public TableGroup
   OneD r, L, T, P, Mwhole, Mhalf, dMwhole, dMhalf, rho, delta, cP, kappa, grad;
   OneD dr, dL, dT, dP;
   OneD oldP, oldT;
+  double Patm, Latm, Ratm, Tatm;
 
   // Get rid of the following line once you've fully integrated the updates into
   // all of the CDEG & etc. subroutines that use the old variable conventions

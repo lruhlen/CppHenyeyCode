@@ -26,6 +26,7 @@
 #include "G3J.h"
 #include "G4J.h"
 #include "NewCalcCDEG.h"
+#include "NewCalcCDEG_flip.h"
 #include "modifiedHenyeyMatrixInversion.h"
 #include "pause_for_user.h"
 #include "atmos.h"
@@ -34,121 +35,212 @@
 using namespace std;
 
 
-int main()
+string filePath, versionNum;
+bool WriteOutput;
+
+int main(int argc, char *argv[])
 {
+
+
+  // Setting up the base of the filename path structure to write your outputs to (for debugging in python)
+  versionNum  = "None";
+  WriteOutput = false;
+
+  if (argc > 1) 
+     {
+       WriteOutput = true;
+       filePath = argv[1];       
+       if (argc > 2)
+	 {
+	   versionNum = argv[2];
+	 }
+     }
+
+
+  // Going to have to use the Python wrapper function that calls this entire program to check that the 
+  // filepath directory exists, that the file (base) names don't already exist there (i.e., so that no overwriting 
+  // of extant data occurs) and all of that other stuff.
+
 
   // // Read in the starting conditions
    bundle vars;
   // // Read in the EOS and opacity table info
    TableGroup eos;
 
-   // //  Read in the kludgy low-temperature & low-pressure eos table
-   // //  Remember: in these tables xvals = log10(P), yvals = log10(T)
-   // //   eos.rho.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/rho1000.txt";
-   // eos.rho.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/rho_for_n32_1Msun.txt";
-   // eos.rho.read_in(1000,1000);  
-   // //   eos.cp.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/cP1000.txt";
-   // eos.cp.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/cP_for_n32_1Msun.txt";
-   // eos.cp.read_in(1000,1000);  
-   // //   eos.delta.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/delta1000.txt";
-   // eos.delta.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/delta_for_n32_1Msun.txt";
-   // eos.delta.read_in(1000,1000);  
-   // //   eos.kappa.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/opacity_tables/kappa1000.txt";
-   // eos.kappa.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/kappa_for_n32_1Msun.txt";
-   // eos.kappa.read_in(1000,1000);   
-   // //   cout<<"\nDone reading in eos tables\n";
-   // vars.EOS = eos;  
-   // //   cout<<"\nDone setting the vars eos tables\n";
+    //  Read in the kludgy low-temperature & low-pressure eos table
+    //  Remember: in these tables xvals = log10(P), yvals = log10(T)
+   //    eos.rho.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/rho_for_n32_1Msun.txt";
+    eos.rho.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/bigger_rho.txt";
+    eos.rho.read_in(1000,1000);  
+    //    eos.cp.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/cP_for_n32_1Msun.txt";
+    eos.cp.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/bigger_cP.txt";
+    eos.cp.read_in(1000,1000);  
+    //    eos.delta.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/delta_for_n32_1Msun.txt";
+    eos.delta.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/bigger_del.txt";
+    eos.delta.read_in(1000,1000);  
+    //    eos.kappa.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/kappa_for_n32_1Msun.txt";
+    eos.kappa.table_name = "/Users/laurel/Desktop/Research/CppHenyeyCode/eos_tables/bigger_kappa.txt";
+    eos.kappa.read_in(1000,1000);   
+    vars.EOS = eos;  
   
-     //   vars.read_in_vars("/Users/laurel/Desktop/Research/CppHenyeyCode/InitialConds/n32_1Msun_init_model.txt");
-   //   vars.read_in_vars("/Users/laurel/Desktop/Research/CppHenyeyCode/InitialConds/10MjupInput.txt");
-   vars.read_in_vars("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/cdeg_var_vals.txt");
-   //   cout<<"\nDone reading in vars\n";
-
-   //   vars.eos_var_update(-1);
-   //   cout<<"\nDone setting the lookup/update eos vars!\n";
+   vars.read_in_vars("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/more_precise_cdeg_var_values.txt");
+   vars.eos_var_update(-1);
 
    vec2d tempRatio(iMax,jMax,0);
    OneD temp(4);
    vec2d G(jMax,iMax,0);
    vec3d C(jMax,iMax,iMax,0), D(jMax,iMax,iMax,0),E(jMax,iMax,iMax,0);
-   double PratioMax, RratioMax, LratioMax, TratioMax;
+
    double rescale;
    OneD thresh(4); thresh[0] = 0.06; thresh[1] = 0.06; thresh[2] = 0.5; thresh[3] = 0.06;
+ 
+   temp = atmos(vars.r[jMax-1], vars.L[jMax-1], vars.dMwhole[jMax-1], vars.Mwhole[jMax-1], vars.EOS);
+   vars.Tatm = temp[3];
+   vars.Patm = temp[2];
+   vars.Ratm = temp[1];
    
-   C = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/c_values.txt",jMax,iMax,iMax);
-   D = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/d_values.txt",jMax,iMax,iMax);
-   E = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/e_values.txt",jMax,iMax,iMax);
-   G = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/g_values.txt",jMax,iMax);
+   vec3d PeterC(jMax,iMax,iMax), PeterD(jMax,iMax,iMax), PeterE(jMax,iMax,iMax);
+   vec2d PeterG(jMax,iMax);
+   
+   if (true)
+     {
+        PeterC = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/c_values.txt",jMax,iMax,iMax);
+	//	PeterC = matrixMultiply(-1.0,PeterC);
+        PeterD = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/d_values.txt",jMax,iMax,iMax);
+	//	PeterD = matrixMultiply(-1.0,PeterD);
+        PeterE = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/e_values.txt",jMax,iMax,iMax);
+	//	PeterE = matrixMultiply(-1.0,PeterE);
+        PeterG = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/g_values.txt",jMax,iMax);
+     }
 
-   // temp = atmos(vars.r[jMax-1], vars.L[jMax-1], vars.dMwhole[jMax-1], vars.Mwhole[jMax-1], vars.EOS);
-   // //       cout<<"\nDone running the atmos subroutine!\n";
-   
-   // // Reset the outer P/T/rho values accordingly
-   // vars.P[jMax-1] = temp[2];
-   // vars.T[jMax-1] = temp[3];
-   // vars.rho[jMax-1] = temp[4];
-   
-   
+
   // The convergence loop starts here...
    for (int i=1;i<2; i++)
      {
        // cout<<"\n\n----------------------------\n";
-       // cout<<"On convergence loop #"<<i<<endl;
-    
+       //       cout<<"On convergence loop #"<<i<<endl;
+ 
        // Calculate the CDEG matrices
-       //       NewCalcCDEG(vars, G, C, D, E);
-       //       cout<<"\nDone running the NewCalcCDEG subroutine!\n";
-
-
-       // Run the Henyey matrix inversion & correction finder subroutine
-       modifiedHenyeyMatrixInversion(vars,C,D,E,G);
-       //       cout<<"\nDone running the Henyey Matrix inversion subroutine!\n";
-
-       // tempRatio[0] = matrixDivide(vars.dP,vars.P);
-       // tempRatio[1] = matrixDivide(vars.dr,vars.r);
-       // tempRatio[2] = matrixDivide(vars.dL,vars.L);
-       // tempRatio[3] = matrixDivide(vars.dT,vars.T);
-       // cout<<FindNonZeroMax(tempRatio[0])<<"\t"<<FindNonZeroMax(tempRatio[1])<<"\t"<<FindNonZeroMax(tempRatio[2])<<"\t"<<FindNonZeroMax(tempRatio[3])<<endl;
-       // cout<<"Max dX/X = "<<FindNonZeroMax(tempRatio)<<endl;
-  /*
-    Rescale the corrections 
-   */
-       cout<<"MassCellNumber	 dP	 dr	 dL	 dT	 dPrescaled	 drrescaled	 dLrescaled	 dTrescaled	 P	 r	 L	 T"<<endl;
-       for (int j=0; j<jMax; j++)
+       NewCalcCDEG(vars, G, C, D, E);
+       
+       if (false)
 	 {
-	   cout<<j<<"  "<<vars.dP[j]<<"  "<<vars.dr[j]<<"  "<<vars.dL[j]<<"  "<<vars.dT[j]<<"  ";
-
-	   if (fabs(vars.dP[j]/vars.P[j]) > thresh[0])
+	   C = PeterC;
+	   D = PeterD;
+	   E = PeterE;
+	   G = PeterG;
+	 }
+       
+       if (false)
+	 {
+	   for(int j=jMax-2; j<jMax; j++)
 	     {
-	       vars.dP[j] = thresh[0] * (vars.dP[j] * vars.P[j]/fabs(vars.dP[j]));
+	       C[j] = PeterC[j];
+	       D[j] = PeterD[j];
+	       E[j] = PeterE[j];
+	       G[j] = PeterG[j];
 	     }
-	   if (fabs(vars.dr[j]/vars.r[j]) > thresh[1])
-	     {
-	       vars.dr[j] = thresh[1] * (vars.dr[j]/fabs(vars.dr[j])) * vars.r[j];
-	     }
-	   if (fabs(vars.dL[j]/vars.L[j]) > thresh[2])
-	     {
-	       vars.dL[j] = thresh[2] * (vars.dL[j]/fabs(vars.dL[j])) * vars.L[j];
-	     }
-	   if (fabs(vars.dT[j]/vars.T[j]) > thresh[3])
-	     {
-	       vars.dT[j] = thresh[3] * (vars.dT[j]/fabs(vars.dT[j])) * vars.T[j];
-	     }      
-	   cout<<vars.dP[j]<<"  "<<vars.dr[j]<<"  "<<vars.dL[j]<<"  "<<vars.dT[j]<<"  ";
-	   cout<<vars.P[j]<<"  "<<vars.r[j]<<"  "<<vars.L[j]<<"  "<<vars.T[j]<<endl;
-
 	 }
 
-       // Apply the corrections
-       vars.P = addMatrix(vars.dP,vars.P);
-       vars.r = addMatrix(vars.dr,vars.r);
-       vars.L = addMatrix(vars.dL,vars.L);
-       vars.T = addMatrix(vars.dT,vars.T);
-       //       cout<<"\nFinished applying the corrections\n";
-     }
+       
+        if (WriteOutput)
+	  { 
+	    // Open files for writing the CDEG outputs to.
+	    ofstream Goutput, Coutput, Doutput, Eoutput;
+	    string tempName;
+	    
+	    tempName = filePath + "_G_debug_v" + versionNum + ".txt";
+	    Goutput.open(tempName.c_str());
+	    	    
+	    tempName = filePath + "_C_debug_v" + versionNum + ".txt";
+	    Coutput.open(tempName.c_str());
+	    
+	    tempName = filePath + "_D_debug_v" + versionNum + ".txt";
+	    Doutput.open(tempName.c_str());
+	    
+	    tempName = filePath + "_E_debug_v" + versionNum + ".txt";
+	    Eoutput.open(tempName.c_str());
+	    
+	    Goutput<<"MassCellNumber\tG1\tG2\tG3\tG4\n";
+	    Coutput<<"j\tC11\tC12\tC13\tC14\tC21\tC22\tC23\tC24\tC31\tC32\tC33\tC34\tC41\tC42\tC43\tC44\n";
+	    Doutput<<"j\tD11\tD12\tD13\tD14\tD21\tD22\tD23\tD24\tD31\tD32\tD33\tD34\tD41\tD42\tD43\tD44\n";
+	    Eoutput<<"j\tE11\tE12\tE13\tE14\tE21\tE22\tE23\tE24\tE31\tE32\tE33\tE34\tE41\tE42\tE43\tE44\n";
+	    
+	    for(int j=0; j<jMax; j++)
+	      {
+		Goutput<<j+1<<"\t";
+		Coutput<<j+1<<"\t";
+		Doutput<<j+1<<"\t";
+		Eoutput<<j+1<<"\t";
+		
+		for(int row=0; row<iMax; row++)
+		  {
+		    Goutput<<G[j][row]<<"\t";
+		    
+		    for(int col=0; col<iMax; col++)
+		      {
+			Coutput<<C[j][row][col]<<"\t";
+			Doutput<<D[j][row][col]<<"\t";
+			Eoutput<<E[j][row][col]<<"\t";
+		      }
+		  }
+		Goutput<<endl;
+		Coutput<<endl;
+		Doutput<<endl;
+		Eoutput<<endl;
+	      }
+	    Goutput.close();
+	    Coutput.close();
+	    Doutput.close();
+	    Eoutput.close();
+	  }
+
+       // // Run the Henyey matrix inversion & correction finder subroutine
+       modifiedHenyeyMatrixInversion(vars,C,D,E,G);
  
-   //  cout<<"\nDone!\n";
-   
-  return 0;
+       if (WriteOutput)
+	 {
+	   ofstream dXoutput;
+	   string tempName = filePath + "_dX_debug_v" + versionNum + ".txt";
+	   dXoutput.open(tempName.c_str());
+
+	   /*
+	     Rescale the corrections 
+	   */
+	   dXoutput<<"MassCellNumber	 dP	 dr	 dL	 dT	 dPrescaled	 drrescaled	 dLrescaled	 dTrescaled	 P	 r	 L	 T"<<endl;
+	   for (int j=0; j<jMax; j++)
+	     {
+	       dXoutput<<j<<"  "<<vars.dP[j]<<"  "<<vars.dr[j]<<"  "<<vars.dL[j]<<"  "<<vars.dT[j]<<"  ";
+	       
+	       if (fabs(vars.dP[j]/vars.P[j]) > thresh[0])
+		 {
+		   vars.dP[j] = thresh[0] * (vars.dP[j] * vars.P[j]/fabs(vars.dP[j]));
+		 }
+	       if (fabs(vars.dr[j]/vars.r[j]) > thresh[1])
+		 {
+		   vars.dr[j] = thresh[1] * (vars.dr[j]/fabs(vars.dr[j])) * vars.r[j];
+		 }
+	       if (fabs(vars.dL[j]/vars.L[j]) > thresh[2])
+		 {
+		   vars.dL[j] = thresh[2] * (vars.dL[j]/fabs(vars.dL[j])) * vars.L[j];
+		 }
+	       if (fabs(vars.dT[j]/vars.T[j]) > thresh[3])
+		 {
+		   vars.dT[j] = thresh[3] * (vars.dT[j]/fabs(vars.dT[j])) * vars.T[j];
+		 }      
+	       dXoutput<<vars.dP[j]<<"  "<<vars.dr[j]<<"  "<<vars.dL[j]<<"  "<<vars.dT[j]<<"  ";
+	       dXoutput<<vars.P[j]<<"  "<<vars.r[j]<<"  "<<vars.L[j]<<"  "<<vars.T[j]<<endl;
+	     }
+	   dXoutput.close();
+	 }
+       
+       // //       // // Apply the corrections
+       // //       // vars.P = addMatrix(vars.dP,vars.P);
+       // //       // vars.r = addMatrix(vars.dr,vars.r);
+       // //       // vars.L = addMatrix(vars.dL,vars.L);
+       // //       // vars.T = addMatrix(vars.dT,vars.T);
+     } 
+
+   cout<<"Rj = "<<vars.r[jMax-1]<<"\nRjm1 = "<<vars.r[jMax-2]<<"\nRatm = "<<vars.Ratm<<"\nMj = "<<vars.Mwhole[jMax-1]<<"\nMjm1 = "<<vars.Mwhole[jMax-2]<<"\nRhoj = "<<vars.rho[jMax-1]<<endl;
+   return 0;
 } 

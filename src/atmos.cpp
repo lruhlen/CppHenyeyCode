@@ -47,7 +47,7 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
   OneD eosvals(4);
   
   Pout = pow(TKO,4.0) * 3.0 * a;
-  Pout = max(pow(10.0,eos.rho.xvals[0]),Pout);
+  Pout = max(pow(10.0,eos.kappa.xvals[0]),Pout);
   ratio = 1.0;
   threshold = pow(10.0,-5);
   littleG = gravG * M / (pow(Rout,2));
@@ -55,7 +55,6 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
   eosvals = eos.lookup(Pout,TKO);
   kappa1 = eosvals[3];
   Pguess1 = Pout + (GD/kappa1);
-
   
   //   Step 4
   while (ratio > threshold)
@@ -71,12 +70,10 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
       G2 = ((Pguess2-Pout)*kappa2) - GD;
       
       delP = -1.0* G1 *(Pguess1 - Pguess2) / (G1 - G2);
-      
       Pguess1 += delP;
       ratio = 2*fabs(delP)/(Pguess1+Pguess2);
       
     }
-  
   
   //   Done defining atmospheric values at outermost point. Now do the
   //   rest of the atmosphere using Runge-Kutta integration...
@@ -108,10 +105,13 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
   //  double Mout = M; 
   //  Rout = R;
 
+  //  cout<<"j\t tau\t M\t R\t P\t T\n";
 
    int j = 1;
-     do
-     {	   	
+   do
+     {	   
+       //       cout<<j<<"\t"<<tau<<"\t"<<M<<"\t "<<R<<"\t"<< P<<"\t"<<T<<endl;
+
        factor = dTau;
 
        eosvals = eos.lookup(P,T);
@@ -124,20 +124,21 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
        radnab = (3 / (16*pi*gravG*a*c) ) * (kappa * Lout * P / (Mtemp*pow(T,4)) );
        adnab = delta * P / (cP * T * rho);
        nab = min(radnab,adnab);//*(T/P);
-       //       cout<<"Step "<<j<<":\t P = "<<P<<"\t T = "<<T<<"\tkappa = "<<kappa<<"\t nab = "<<nab<<"\t delta = "<<delta<<"\t cP = "<<cP<<"\t radnab = "<<radnab<<"\t adnab = "<<adnab<<endl;       
 
        dMk1 = factor * 4.0*pi*pow(Rtemp,2)/kappa;
        dRk1 = factor * 1.0 / (rho * kappa);
        dPk1 = factor * gravG * Mtemp / (kappa * pow(Rtemp,2));
        dTk1 = factor * gravG * Mtemp * T * nab / (pow(Rtemp,2)*kappa*P);
        //------------------------------
-       
+
+
        //------------------------------
        Mk2 = M + 0.5*dMk1;
        Rk2 = R + 0.5*dRk1;
        Pk2 = P + 0.5*dPk1;
        Tk2 = T + 0.5*dTk1;
        
+
        Mtemp = Mstar - max(0.0,Mk2-MTau23);
        Rtemp = Rout - max(0.0,Rk2-RTau23);
 
@@ -260,12 +261,7 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
   	 }
        //------------------------------
 
-       // if (j%100 == 0)
-       // 	 {
-       //       cout<<"Step "<<j<<":\tdTau = "<<dTau<<"\t tau = "<<tau<<"\tdM ="<<(1.0/6.0) * (dMk1 + 2.0*dMk2 + 2.0*dMk3 + dMk4)<< "\tM = "<<M<<endl;
-       // 	 }
-       //       cout<<"Step "<<j<<":   dMk1 = "<<dMk1<<"   dMk2 = "<<dMk2<<"   dMk3 = "<<dMk3<<"   dMk4 = "<<dMk4<<endl;
-       //------------------------------
+      //------------------------------
 
        //------------------------------
        tau+= dTau;
@@ -275,16 +271,20 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
        j++;
        //------------------------------
 
+       //       cout<<j<<"\t"<<tau<<"\t"<<M<<"\t"<<P<<"\t"<<R<<"\t"<<T<<endl;
 
-     } while (M <= dM);
-     //cout<<"Step "<<j<<":\tdTau = "<<dTau<<"\t tau = "<<tau<<"\tM = "<<M<<"\tP = "<<P<<"\tR = "<<R<<"\t T = "<<T<<endl;
+     }while (M <= dM);
 
-     Msurface = M;
-     Rsurface = R;
+
+   // Msurface = M;
+   // Rsurface = R;
+   Msurface = Mtemp;
+   Rsurface = Rtemp;
+
 
      returnvals[0] = Msurface;
-     //returnvals[1] = Rout-Rsurface;
-     returnvals[1] = Rsurface;
+     returnvals[1] = Rout-Rsurface;
+     //     returnvals[1] = Rsurface;
      returnvals[2] = Psurface;
      returnvals[3] = Tsurface;
      returnvals[4] = Rhosurface;
