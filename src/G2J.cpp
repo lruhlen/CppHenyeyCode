@@ -13,7 +13,6 @@ using namespace std;
 
 double G2J(bundle &vars, int j)
 {
-
  double result;
   // Ultimately, G2J = r[j]^3 - r[j-1]^3 -(M[j] - M[j-1])*( 3/ (4 pi rho[j]) )
 
@@ -29,7 +28,9 @@ double G2J(bundle &vars, int j)
  else
    {
      OneD temp = atmos(vars.r[j], vars.L[j], vars.dMwhole[j], vars.Mwhole[j], vars.EOS);
-     result = 2.0*vars.r[j] - vars.r[j-1] - temp[1];
+     result = temp[1] - vars.r[j];
+     //     result = vars.r[j] - temp[1];
+     //     result = 2.0*vars.r[j] - vars.r[j-1] - temp[1];
      //     result = 2.0*vars.r[j] - vars.r[j-1] - vars.Ratm;
    }
  

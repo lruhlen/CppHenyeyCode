@@ -13,7 +13,6 @@ using namespace std;
 
 double G4J(bundle &vars, int j)
 {
-
   double result;
   double Bj, Bj1;
       if (j+1 < jMax)
@@ -26,8 +25,8 @@ double G4J(bundle &vars, int j)
       else
 	{
 	  OneD temp = atmos(vars.r[j], vars.L[j], vars.dMwhole[j], vars.Mwhole[j], vars.EOS);
-
-	  result = vars.T[j] - temp[3];
+	  result = temp[3] - vars.T[j];
+	  //	  result = vars.T[j] - temp[3];
 	  //	  result = vars.T[j] - vars.Tatm;
 	  
 	}

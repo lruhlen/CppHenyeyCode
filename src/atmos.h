@@ -9,6 +9,8 @@
 #include "AboutThisRun.h"
 #include "physicalConstants.h"
 #include "global.h"
+#include "ReadInArray.h"
+
 using namespace std;
 
 OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eos);
