@@ -18,18 +18,23 @@ double G2J(bundle &vars, int j)
 
  if (j==0)
    {
-     result = pow(vars.r[j],3)  - (vars.Mwhole[j] * (3.0 / (4.0 *pi * vars.rho[j])));
+     result = pow(vars.r[j],3)  - (vars.dMwhole[j] * (3.0 / (4.0 *pi * vars.rho[j])));
+     //   cout<<"G2J: "<<j<<"\t"<<vars.r[j]<<"\t 0.0 \t"<<vars.dMwhole[j]<<"\t"<<vars.rho[j]<<endl;
+     //     printf("G2J: %d \t %.18f  \t %.18f \t  %.18f \t  %.18f \t  %.18f \n",j,result,vars.r[j],0.0,vars.dMwhole[j],vars.rho[j]);
    }
  else if (j < jMax-1)
    {
-     result = pow(vars.r[j],3) - pow(vars.r[j-1],3) - ( (vars.Mwhole[j]-vars.Mwhole[j-1]) * (0.75 / ( pi * vars.rho[j]) ) );
+     result = pow(vars.r[j],3) - pow(vars.r[j-1],3) - ( (vars.dMwhole[j]) * (0.75 / ( pi * vars.rho[j]) ) );
+     //     cout<<"G2J: "<<j<<"\t"<<vars.r[j]<<"\t"<<vars.r[j-1]<<"\t"<<vars.dMwhole[j]<<"\t"<<vars.rho[j]<<endl;
+     //     printf("G2J: %d  \t %.18f \t %.18f \t  %.18f \t  %.18f \t  %.18f \n",j,result,vars.r[j],vars.r[j-1],vars.dMwhole[j],vars.rho[j]);
+
 
    }
  else
    {
      OneD temp = atmos(vars.r[j], vars.L[j], vars.dMwhole[j], vars.Mwhole[j], vars.EOS);
      result = temp[1] - vars.r[j];
-     //     result = vars.r[j] - temp[1];
+     // result = vars.r[j] - temp[1];
      //     result = 2.0*vars.r[j] - vars.r[j-1] - temp[1];
      //     result = 2.0*vars.r[j] - vars.r[j-1] - vars.Ratm;
    }

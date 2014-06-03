@@ -32,7 +32,7 @@ void NewCalcCDEG(bundle &vars, vec2d &myG, vec3d &myC, vec3d &myD, vec3d &myE)
   double dP, dr, dL, dT;
 
   double temp;
-
+  cout<<"\t\tStarting the G calcs...\n";
   //  for (int j = 0; j < jMax -1 ; j++)
   for (int j=0; j < jMax; j++)
     {
@@ -45,7 +45,9 @@ void NewCalcCDEG(bundle &vars, vec2d &myG, vec3d &myC, vec3d &myD, vec3d &myE)
       myG[j][1] = G2[j];
       myG[j][2] = G3[j];
       myG[j][3] = G4[j];
+
     }
+  cout<<"\n\t\tCalculated the Gs\n";
   // myG[jMax-1][0] = vars.P[jMax-1] - Porig;
   // myG[jMax-1][1] = vars.r[jMax-1]-vars.r[jMax-2] - Rorig;
   // myG[jMax-1][2] = vars.L[jMax-1] - vars.L[jMax-2];
@@ -57,11 +59,10 @@ void NewCalcCDEG(bundle &vars, vec2d &myG, vec3d &myC, vec3d &myD, vec3d &myE)
   // cout<<"dM = "<<vars.dMwhole[jMax-1]<<endl;
   // cout<<"M = "<<vars.Mwhole[jMax-1]<<endl;
   
-  
-  // Calculating the C/D/E derivatives  
+  //Calculating the C/D/E derivatives  
+  cout<<"\t\tCalculating the CDEs...\n";
   for (int j = 0; j < jMax; j++)
     {
-
       // Need to make sure you don't accidentally end up with dX = 0
       // because that'll give you NANs in your matrices, and that's not good.
       

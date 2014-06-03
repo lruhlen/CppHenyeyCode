@@ -20,13 +20,14 @@ double G4J(bundle &vars, int j)
 	  Bj = vars.grad[j] * vars.T[j] / vars.P[j];
 	  Bj1 =vars.grad[j+1] * vars.T[j+1] / vars.P[j+1];
 	  
-	  result = (vars.T[j+1] - vars.T[j]) - ( (vars.P[j+1] - vars.P[j]) * (Bj1+Bj)/2.0);
+	  //	  result = (vars.T[j+1] - vars.T[j]) - ( (vars.P[j+1] - vars.P[j]) * (Bj1+Bj)/2.0);
+	  result = (vars.T[j+1] - vars.T[j]) - ( (vars.P[j+1] - vars.P[j]) * (Bj1+Bj)*0.5);
 	}
       else
 	{
 	  OneD temp = atmos(vars.r[j], vars.L[j], vars.dMwhole[j], vars.Mwhole[j], vars.EOS);
 	  result = temp[3] - vars.T[j];
-	  //	  result = vars.T[j] - temp[3];
+	  //result = vars.T[j] - temp[3];
 	  //	  result = vars.T[j] - vars.Tatm;
 	  
 	}

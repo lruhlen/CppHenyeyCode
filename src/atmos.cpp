@@ -15,7 +15,9 @@ using namespace std;
 OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eos)
 {
   string tt = "\t";
+  //  cout<<tt<<tt<<tt<<"Starting atmos subroutine\n";
   OneD returnvals(5,0);
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Start of my sandboxing of the atmos code
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -54,14 +56,20 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
    threshold = pow(10.0,-5);
    littleG = gravG * M / (pow(Rout,2));
    GD = littleG *dTau;
+   // cout<<"\t\t\tFirst eostab lookup call...\n";
+   // cout<<"\t\t\tPout = "<<Pout<<"\tTK0 = "<<TKO<<endl;
    eosvals = eos.lookup(Pout,TKO);
    kappa1 = eosvals[3];
    Pguess1 = Pout + (GD/kappa1);
   
+
+   int numloop = 0;
    //   Step 4
    while (ratio > threshold)
      {
+       numloop++;
        // Step 5
+       // cout<<"\t\t\tDoing that outermost iterative loop thing...\n";
        eosvals = eos.lookup(Pguess1,TKO);
        kappa1 = eosvals[3];
        G1 = ((Pguess1 - Pout)*kappa1) - GD;
@@ -76,14 +84,15 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
        ratio = 2*fabs(delP)/(Pguess1+Pguess2);
     
      }
-   cout<<"\n----------------------\n";
-   cout<<"First atmos values:\n";
-   cout<<"P = "<<Pguess1<<endl;
-   cout<<"T = "<<TKO<<endl;
+   //   cout<<"\t\t\t\tOutermost value loop iterations = "<<numloop<<endl;
+   // cout<<"\n----------------------\n";
+   // cout<<"First atmos values:\n";
+   // cout<<"P = "<<Pguess1<<endl;
+   // cout<<"T = "<<TKO<<endl;
    eosvals = eos.lookup(Pguess1,TKO);
-   cout<<"rho = "<<eosvals[0]<<endl;
-   cout<<"kappa = "<<eosvals[3]<<endl;
-   cout<<"----------------------\n\n";
+   // cout<<"rho = "<<eosvals[0]<<endl;
+   // cout<<"kappa = "<<eosvals[3]<<endl;
+   // cout<<"----------------------\n\n";
 
   //   Done defining atmospheric values at outermost point. Now do the
   //   rest of the atmosphere using Runge-Kutta integration...
@@ -480,7 +489,7 @@ OneD atmos(double &Rout, double &Lout, double &dM, double &Mstar, TableGroup &eo
      returnvals[3] = Tsurface;
      returnvals[4] = Rhosurface;
 
-     cout<<"Msurface: "<<Msurface<<"\nRout-Rsurface: "<<Rout-Rsurface<<"\nPsurface: "<<Psurface<<"\nTsurface: "<<Tsurface<<"\nRhoSurface: "<<Rhosurface<<endl;
+     //     cout<<"Msurface: "<<Msurface<<"\nRout-Rsurface: "<<Rout-Rsurface<<"\nPsurface: "<<Psurface<<"\nTsurface: "<<Tsurface<<"\nRhoSurface: "<<Rhosurface<<endl;
 
   return returnvals;
 }

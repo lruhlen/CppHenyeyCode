@@ -169,14 +169,22 @@ vec2d Table::lookup(double IndepVar1, double IndepVar2)
 
 double Table::bilinear_interp(double IndepVar1, double IndepVar2) 
 {
-  double result;
-  double fQ11, fQ12, fQ21, fQ22;
-  double x, y, dx, dy, x1, x2, y1, y2, y3, y4;
+    double result;
+   double fQ11, fQ12, fQ21, fQ22;
+   double x, y, dx, dy, x1, x2, y1, y2, y3, y4;
+
+  // double dblresult;
+  // float result;
+  // float fQ11, fQ12, fQ21, fQ22;
+  // float x, y, dx, dy, x1, x2, y1, y2, y3, y4;
+
+
   int x1_index,x2_index,y1_index,y2_index;
   x = IndepVar1;
   y = IndepVar2;
 
   vec2d corner = lookup(x,y);
+
   x1_index = int(corner[0][0]);
   x2_index = int(corner[2][0]);
   y1_index = int(corner[0][1]);
@@ -186,8 +194,9 @@ double Table::bilinear_interp(double IndepVar1, double IndepVar2)
   x2 = xvals[ x2_index];
   y1 = yvals[y1_index];
   y2 = yvals[y2_index];
+  //  cout<<"Pressure brackets: "<<x1<<"\t"<<x2<<endl<<"Temperature brackets: "<<y1<<"\t"<<y2<<endl;
+  //  printf("\nPressure brackets: %-12.8g \t %-12.8g\nTemperature brackets: %-12.8g \t %-12.8g \n",x1,x2,y1,y2);
 
- 
   dx = x2-x1; 
   dy = y2-y1; 
 
@@ -195,7 +204,8 @@ double Table::bilinear_interp(double IndepVar1, double IndepVar2)
   fQ12 = gridvals[y2_index][x1_index]; 
   fQ21 = gridvals[y1_index][x2_index]; 
   fQ22 = gridvals[y2_index][x2_index]; 
-  
+
+
   if ( (dx != 0) && (dy != 0) )
     {
       result =  (fQ11 * (x2-x) * (y2-y)) + (fQ21 * (x-x1) * (y2-y)) + (fQ12 * (x2-x) * (y-y1))+ (fQ22 * (x-x1) * (y-y1) ) ;
@@ -214,6 +224,24 @@ double Table::bilinear_interp(double IndepVar1, double IndepVar2)
       result = fQ11;
     }
 
+
+  // // Debugging kludge:
+  // cout<<"P vals: "<<x1<<"\t"<<x<<"\t"<<x2<<endl;
+  // cout<<"T vals: "<<y1<<"\t"<<y<<"\t"<<y2<<endl;
+  // cout<<"dP = "<<dx<<endl;
+  // cout<<"dT = "<<dy<<endl;
+  //  printf("\n fQ11 = %-12.8g \n fQ12 = %-12.8g \n fQ21 = %-12.8g \n fQ22 = %-12.8g",fQ11,fQ12,fQ21,fQ22);
+   // cout<<"fQ11 = "<<fQ11<<endl;
+   // cout<<"fQ12 = "<<fQ12<<endl;
+   // cout<<"fQ21 = "<<fQ21<<endl;  
+   // cout<<"fQ22 = "<<fQ22<<endl;
+  //cout<<"results = "<<log10(result)<<endl;
+  //   cout<<endl;
+
+  //  result = pow(10.0,result);
+
+  //  dblresult = result;
+  //  return dblresult;
   return result;
 }
 
@@ -225,10 +253,18 @@ OneD TableGroup::lookup(double P, double T)
   double logP = log10(P);
   double logT = log10(T);
   
+  //  result[0] = rho.bilinear_interp(P,T);
+  // REMEMBER TO UNCOMMENT THE FOLLOWING LINES!!!
   result[0] = rho.bilinear_interp(logP,logT);
   result[1] = cp.bilinear_interp(logP,logT);
   result[2] = delta.bilinear_interp(logP,logT);
   result[3] = kappa.bilinear_interp(logP,logT);
+
+  // Following line is a kludge
+  //  result[0] = 0.9*result[0];
+  //  result[1] = 0.9*result[1];
+  //  result[2] = 0.9*result[2];
+  //  result[3] = 0.9*result[3];
 
   return result;
 }

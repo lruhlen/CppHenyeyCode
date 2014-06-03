@@ -35,18 +35,19 @@ using namespace std;
 extern string filePath, versionNum;
 extern bool WriteOutput;
 
-void modifiedHenyeyMatrixInversion(struct bundle &vars, vec3d C, vec3d D, vec3d E, vec2d G)
+void modifiedHenyeyMatrixInversion(struct bundle &vars, vec3d &C, vec3d &D, vec3d &E, vec2d &G, string iterNum)
 {
+
   vec2d A(jMax,iMax);
   vec2d Sum(jMax,iMax);  
   vec3d S(jMax,iMax,iMax), B(jMax,iMax,iMax), InverseS(jMax,iMax,iMax); 
   OneD tempJ(4), tempJminus(4);
 
-  vec3d PeterS(jMax,iMax,iMax) , PeterInverseS(jMax,iMax,iMax) ;
-  PeterS = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/n32_1Msun_Smatrices.txt",jMax,iMax,iMax);
-  PeterInverseS = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/n32_1Msun_inverseSmatrices.txt",jMax,iMax,iMax);
-  vec2d PeterSum(jMax,iMax);
-  PeterSum = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/n32_1Msun_Sum_values.txt",jMax,iMax);
+  //  vec3d PeterS(jMax,iMax,iMax) , PeterInverseS(jMax,iMax,iMax) ;
+  //  PeterS = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/n32_1Msun_Smatrices.txt",jMax,iMax,iMax);
+  //  PeterInverseS = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/n32_1Msun_inverseSmatrices.txt",jMax,iMax,iMax);
+  //  vec2d PeterSum(jMax,iMax);
+  //  PeterSum = ReadInArray("/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/n32_1Msun_Sum_values.txt",jMax,iMax);
   //  vec3d tempS(jMax,iMax,iMax,0), tempAvg(jMax,iMax,iMax,0);
 
 
@@ -90,24 +91,25 @@ void modifiedHenyeyMatrixInversion(struct bundle &vars, vec3d C, vec3d D, vec3d 
        B[j] = matrixMultiply(-1.0,B[j]);     
        
     }
+  cout<<"\t\tDone calculating the As and Bs\n";
 
   if (WriteOutput)
     {
       ofstream Aout, Bout, Sout, invSout, Sumout;
 
-      string tempName = filePath + "_A_debug_v" + versionNum + ".txt";
+      string tempName = filePath + "_A_debug_v" + versionNum + "_iter_" +iterNum + ".txt";
       Aout.open(tempName.c_str());
 
-      tempName = filePath + "_B_debug_v" + versionNum + ".txt";
+      tempName = filePath + "_B_debug_v" + versionNum +  "_iter_" + iterNum +".txt";
       Bout.open(tempName.c_str());
 
-      tempName = filePath + "_S_debug_v" + versionNum + ".txt";
+      tempName = filePath + "_S_debug_v" + versionNum +  "_iter_" + iterNum +".txt";
       Sout.open(tempName.c_str());
 
-      tempName = filePath + "_invS_debug_v" + versionNum + ".txt";
+      tempName = filePath + "_invS_debug_v" + versionNum +  "_iter_" + iterNum +".txt";
       invSout.open(tempName.c_str());
 
-      tempName = filePath + "_Sum_debug_v" + versionNum + ".txt";
+      tempName = filePath + "_Sum_debug_v" + versionNum +  "_iter_" + iterNum +".txt";
       Sumout.open(tempName.c_str());
 
       
@@ -139,7 +141,7 @@ void modifiedHenyeyMatrixInversion(struct bundle &vars, vec3d C, vec3d D, vec3d 
       Sumout.close();
     }
 
-
+  cout<<"\t\tStarting the dX backsolving\n";
   /*
     Solve for the dx surface values
   */ 

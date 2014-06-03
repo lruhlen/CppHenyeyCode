@@ -18,12 +18,15 @@ using namespace std;
    ============================================== */
 
 const double Tmax = 0.0;
-const double delta_t = 1.0e11; // this is about 1000 years...
 //const double delta_t = 0.0;
+//const double delta_t = 1.0e11; // this is about 3000 years...
+//const double delta_t = 3.4789e9;
+//const double delta_t = 1.00;
+const double delta_t = 1.00e8;
 const double tolerance = 1e-4;
 //const double epsilon = 0.1; // Setting the upper limit for the size of corrections to apply to the dependent variables 
-const int jMax = 298;
-//const int jMax = 551;
+//const int jMax = 298;
+const int jMax = 551;
 //const int jMax = 6;
 const int iMax = 4;
 const int kMax = 4;
@@ -31,26 +34,7 @@ const int lMax = 4;
 const int mMax = 4;
 const double polytropic_gamma = 2.0; 
 
-// Tell the program where your opacity table, eos table, and P/T/L/r initial conditions files are.
-const string initial_conds_dir = "/Users/laurel/Desktop/Research/CppHenyeyCode/CodingSandbox/InitialConds/";
-const string M_initial_conds = initial_conds_dir +  "MassInitialConds.txt";
-const string P_initial_conds = initial_conds_dir + "logPInitialConds.txt";
-const string T_initial_conds = initial_conds_dir + "logTInitialConds.txt";
-const string L_initial_conds = initial_conds_dir + "LinearLuminosityInitialConds.txt";
-const string r_initial_conds = initial_conds_dir + "RadiusInitialConds.txt";
 
-const string eos_table = "/Users/laurel/Desktop/Research/CppHenyeyCode/CodingSandbox/eos_tables/H_TAB_I.A";
-const string opacity_table = "/Users/laurel/Desktop/Research/CppHenyeyCode/CodingSandbox/opacity_tables/opac.cool";
-
-
-// For if/when you want to calculate the eqn of state analytically.
-// Placeholder for the EOS tables: tells the lookup function to 
-// stop once it reaches this value.
-// Have to have this kludge, because there's no way to have a 
-// 'ragged' table, with rows of different lengths.
-const double ignore_flag = -1.0e7; 
-const int max_num_T_bins = 63;
-const int max_num_P_bins = 76;
 
 
 // Set the level of debugging statements to ignore/print out.
