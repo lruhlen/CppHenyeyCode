@@ -14,7 +14,7 @@ Color1 = cm.spectral(0)
 Color2 = cm.Dark2(3)
 RatioColor = cm.Dark2(110)
 
-File1 ="/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/n32_1Msun_corrections_v4.txt"
+File1 = eg.fileopenbox('Pick the PETER file you want to use',default='/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/')
 label1 = 'Peter'
 
 File2 = eg.diropenbox(msg='Pick the run you want to analyze',default='/Users/laurel/Desktop/Research/CppHenyeyCode/misc_debugging_records/')
@@ -93,7 +93,7 @@ hd_P = numpy.array(hd['P'][hindex])
 hd_r = numpy.array(hd['r'][hindex])
 hd_L = numpy.array(hd['L'][hindex])
 hd_T = numpy.array(hd['T'][hindex])
-sys.exit(1)
+#sys.exit(1)
 #============================================================
 # Plot the data, and ask the user if they want to save
 # a hardcopy of each plot-set
@@ -179,38 +179,38 @@ show()
 # # 
 # 
 # ###
-# plt.figure(3)
-# clf()
-# plt.subplots_adjust(wspace=0.3,hspace=0.3)
-# plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.25)
-# 
-# plt.subplot(2,2,1)
-# plt.suptitle(suptitleString)
-# plot(pdCell,pd_dP_scaled,c=Color1,label=label1,linewidth=1.5)
-# plot(hdCell,hd_dP_scaled, c=Color2,label=label2,linewidth=1.5)
-# plt.ylabel('dP_scaled')
-# legend(loc='best',prop={'size':6})
-# 
-# plt.subplot(2,2,2)
-# plot(pdCell,pd_dr_scaled,c=Color1,label=label1,linewidth=1.5)
-# plot(hdCell,hd_dr_scaled, c=Color2,label=label2,linewidth=1.5)
-# plt.ylabel('dr_scaled')
-# 
-# plt.subplot(2,2,3)
-# plot(pdCell,pd_dL_scaled,c=Color1,label=label1,linewidth=1.5)
-# plot(hdCell,hd_dL_scaled, c=Color2,label=label2,linewidth=1.5)
-# plt.ylabel('dL_scaled')
-# plt.xlabel('Mass Cell Number')
-# 
-# plt.subplot(2,2,4)
-# plot(pdCell,pd_dT_scaled,c=Color1,label=label1,linewidth=1.5)
-# plot(hdCell,hd_dT_scaled, c=Color2,label=label2,linewidth=1.5)
-# plt.ylabel('dT_scaled')
-# plt.xlabel('Mass Cell Number')
-# 
-# legend([File1,File2], loc = 'center left', bbox_to_anchor = (-1.5, -0.45),prop={'size':8},title='This plot was created on '+date+' from these data files:')
-# show()
-# # 
+#plt.figure(3)
+#clf()
+#plt.subplots_adjust(wspace=0.3,hspace=0.3)
+#plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.25)
+#
+#plt.subplot(2,2,1)
+#plt.suptitle(suptitleString)
+#plot(pdCell,pd_dP_scaled,c=Color1,label=label1,linewidth=1.5)
+#plot(hdCell,hd_dP_scaled, c=Color2,label=label2,linewidth=1.5)
+#plt.ylabel('dP_scaled')
+#legend(loc='best',prop={'size':6})
+#
+#plt.subplot(2,2,2)
+#plot(pdCell,pd_dr_scaled,c=Color1,label=label1,linewidth=1.5)
+#plot(hdCell,hd_dr_scaled, c=Color2,label=label2,linewidth=1.5)
+#plt.ylabel('dr_scaled')
+#
+#plt.subplot(2,2,3)
+#plot(pdCell,pd_dL_scaled,c=Color1,label=label1,linewidth=1.5)
+#plot(hdCell,hd_dL_scaled, c=Color2,label=label2,linewidth=1.5)
+#plt.ylabel('dL_scaled')
+#plt.xlabel('Mass Cell Number')
+#
+#plt.subplot(2,2,4)
+#plot(pdCell,pd_dT_scaled,c=Color1,label=label1,linewidth=1.5)
+#plot(hdCell,hd_dT_scaled, c=Color2,label=label2,linewidth=1.5)
+#plt.ylabel('dT_scaled')
+#plt.xlabel('Mass Cell Number')
+#
+#legend([File1,File2], loc = 'center left', bbox_to_anchor = (-1.5, -0.45),prop={'size':8},title='This plot was created on '+date+' from these data files:')
+#show()
+## # 
 # # if eg.ynbox(msg='Do you want to save this plot as a jpg?'): #Prompt the user
 # #     if not os.path.exists(SaveDir):  #Create the save-directory if it doesn't already exist
 # #         os.makedirs(SaveDir)

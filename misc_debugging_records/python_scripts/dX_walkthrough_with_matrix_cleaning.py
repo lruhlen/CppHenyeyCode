@@ -9,8 +9,8 @@ import asciitable, string, datetime
 #============================================================
 # Read in the raw data
 #============================================================
-savedirBase = eg.diropenbox(msg='Pick the run you want to analyze',default='/Users/laurel/Desktop/Research/CppHenyeyCode/misc_debugging_records/')
-#'/Users/laurel/Desktop/Research/CppHenyeyCode/misc_debugging_records/2012/Sep/Sep_21_2012/v1/'
+
+savedirBase =  eg.diropenbox(msg='Pick the run you want to analyze',default='/Users/laurel/Desktop/Research/CppHenyeyCode/misc_debugging_records/')
 savedirBase += '/'
 
 filelist = [ ]
@@ -71,10 +71,14 @@ PD = numpy.loadtxt(filePeterD)
 PE = numpy.loadtxt(filePeterE)
 PG = numpy.loadtxt(filePeterG,skiprows=2)
 
-#HG[-1] = PG[-1]
-#HC[-1] = PC[-1]
-#HD[-1] = PD[-1]
-#HE[-1] = PE[-1]
+#============================================================
+# Let's declare the precision limit of this machine
+# to be ~1e-16 (it might be a little bit less than that, but
+# this is just to play it safe)
+#============================================================
+limit = 1e-16
+
+
 #============================================================
 # Declare constants to help with the calculations
 # and plotting
@@ -84,10 +88,9 @@ Color2 = cm.spectral(0)
 Color3 = cm.Dark2(110)
 Color4 = cm.Dark2(35)
 
-jMax = HG.shape[0]
+jMax = HC.shape[0]
 iMax = 4
-
-np.set_printoptions(precision=3)
+plotNames = ['dP','dr','dL','dT']
 
 plt.close("all")
 plt.clf()
@@ -112,6 +115,11 @@ PG = numpy.reshape(PG,[jMax,iMax])
 PC = numpy.reshape(PC,[jMax,iMax,iMax])
 PD = numpy.reshape(PD,[jMax,iMax,iMax])
 PE = numpy.reshape(PE,[jMax,iMax,iMax])
+
+#============================================================
+# This space reserved for temporary kludges...
+#============================================================
+#HD[-1,3,2] = PD[-1,3,2]
 
 #============================================================
 # Start walking through the dX calculations,
@@ -141,16 +149,42 @@ for j in range(jMax):
         PS[j] = dot(PC[j].T,PB[j-1]) + PD[j].T
         PSum[j] = dot(PC[j].T,PA[j-1]) + PG[j]
 
+# I think you want to calculate up through the S matrix values
+# before "cleaning" out the small values.
+# You have to perform the 'cleaning' *before* inverting the S
+# matrices, though, because it's those miniscule values/impressions
+# that run the inversion process off the rails
+  
     HA[j] = -1.0 * dot( inv(HS[j]) , HSum[j]) 
     HB[j] = -1.0 * dot( inv(HS[j]) , HE[j])
 
     PA[j] = -1.0 * dot( inv(PS[j]) , PSum[j])
     PB[j] = -1.0 * dot( inv(PS[j]) , PE[j].T)
 
-    #sys.exit(0)
 
 #============================================================
-# Plot/compare the results
+# Start walking through the dX calculations,
+# from the outside in.
+#============================================================
+HdX = numpy.zeros((jMax,iMax))
+PdX = numpy.zeros((jMax,iMax))
+otherHdX = numpy.zeros((jMax,iMax))
+otherPdX = numpy.zeros((jMax,iMax))
+
+HdX[-1] = HA[-1]
+PdX[-1] = PA[-1]
+otherHdX[-1] = PA[-1]
+otherPdX[-1] = HA[-1]
+
+jrange = -1*(numpy.array(range(jMax-1)) + 2)
+for j in jrange:
+    HdX[j] = dot(HB[j],HdX[j+1]) + HA[j]
+    PdX[j] = dot(PB[j],PdX[j+1]) + PA[j]
+    otherHdX[j] = dot(HB[j],otherHdX[j+1]) + HA[j]
+    otherPdX[j] = dot(PB[j],otherPdX[j+1]) + PA[j]
+    #sys.exit(0)
+#============================================================
+# Plot the results
 #============================================================
 File1 = savedirBase.split('Desktop')[-1]
 File2 = filePeterG.split('Desktop')[-1]
@@ -158,30 +192,36 @@ date = datetime.datetime.today()
 date = date.strftime("%b-%d-%Y") 
 name = 'This plot was created on '+date+' from these data files:\n'+File1+"\n"+File2
 
+
+
 for i in range(iMax):
-    print(i)
+    plt.figure(i+2)
+    plt.subplots_adjust(wspace=0.3,hspace=0.3)
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.25)
+
+    plt.suptitle(plotNames[i]+' profile comparison')
+    plt.subplot(3,1,1)
+    plot(HdX[:,i],linewidth=7.0,color=Color1,label='Helena')
+    plot(PdX[:,i],linewidth=7.0,color=Color2,label='Peter')
+    #    pylab.xlim([0,jMax])
+    legend(loc="best",prop={'size':10})
+
+    plt.subplot(3,1,2)
+    plot(otherHdX[:,i],linewidth=7.0,color=Color4,label='Modified Helena')
+    plot(PdX[:,i],linewidth=3.0,color=Color2,label='Peter')
+    legend(loc="best",prop={'size':10})
+
+    plt.subplot(3,1,3)
+    plot(otherPdX[:,i],linewidth=7.0,color=Color3,label='Modified Peter')
+    plot(HdX[:,i],linewidth=3.0,color=Color1,label='Helena')
+    plt.xlabel('Mass Cell Number')
+    legend(loc="best",prop={'size':10})
     
-    plt.figure(1)
-    plt.subplots_adjust(wspace=0.3,hspace=0.3)
-    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.25)
-    plt.suptitle('PA vs. HA')
-    plt.subplot(4,1,i+1)
-    plot(PA[:,i]/HA[:,i] ,'-o',color=Color2,linewidth=2,label='PA/HA')
+    plt.annotate(name, xy=(0.0, -1.0), xycoords='axes fraction')
 
-    plt.figure(2)
-    plt.subplots_adjust(wspace=0.3,hspace=0.3)
-    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.25)
-    plt.suptitle('PG vs. HG')
-    plt.subplot(4,1,i+1)
-    plot(PG[:,i]/HG[:,i] ,'-o',color=Color2,linewidth=2,label='PG/HG')
- 
-
-# Annotate the hard copy with information on which data files it used to create the plot
-plt.figure(1)
-plt.annotate(name, xy=(0.0, -1.0), xycoords='axes fraction')
+    
 
 
-plt.figure(2)
-plt.annotate(name, xy=(0.0, -1.0), xycoords='axes fraction')
+
 
 show()

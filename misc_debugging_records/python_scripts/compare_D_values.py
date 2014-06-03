@@ -10,7 +10,8 @@ Color1 = cm.spectral(0)
 Color2 = cm.Dark2(3)
 RatioColor = cm.Dark2(110)
 
-File1 ="/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/d_values_for_python.txt"
+#File1 ="/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/d_values_for_python.txt"
+File1 = eg.fileopenbox(msg='Pick the PETER d-value file you want to analyse',default='/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/10MjNF_debugging/full_nabla_calcs/')
 label1 = 'Peter'
 
 File2 = eg.diropenbox(msg='Pick the run you want to analyze',default='/Users/laurel/Desktop/Research/CppHenyeyCode/misc_debugging_records/')

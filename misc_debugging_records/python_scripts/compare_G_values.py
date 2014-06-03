@@ -11,7 +11,8 @@ Color2 = cm.Dark2(3)
 RatioColor = cm.Dark2(110)
 
 
-File1 ="/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/g_values_for_python.txt"
+#File1 ="/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/g_values_for_python.txt"
+File1 = eg.fileopenbox(msg='Pick the PETER g-value file you want to analyse',default='/Users/laurel/Desktop/Research/BodenheimerCode/UnalteredCode/outputs/10MjNF_debugging/full_nabla_calcs/')
 label1 = 'Peter'
 
 File2 = eg.diropenbox(msg='Pick the run you want to analyze',default='/Users/laurel/Desktop/Research/CppHenyeyCode/misc_debugging_records/')
@@ -92,7 +93,9 @@ plot(pCell,hG4/pG4,color=RatioColor,linewidth=2,label='hG4/pG4')
 plt.ylabel('G4')
 plt.xlabel('Mass Cell Number')
 
-legend([File1,File2], loc = 'center left', bbox_to_anchor = (-1.5, -0.5),prop={'size':10},title='This plot was created on '+date+' from these data files:')
+File1 = File1.split('Desktop')[-1]
+File2 = File2.split('Desktop')[-1]
+legend([File1+"\n"+File2], loc = 'center left', bbox_to_anchor = (-1.5, -0.5),prop={'size':9},title='This plot was created on '+date+' from these data files:')
 show()
 
 
