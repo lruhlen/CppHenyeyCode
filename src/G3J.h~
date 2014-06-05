@@ -1,0 +1,8 @@
+#ifndef G3J_H
+#define G3J_H
+using namespace std;
+
+
+vector<double> G3J(bundle &vars);
+
+#endif

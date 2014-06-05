@@ -1,0 +1,17 @@
+#include <vector>
+#include "AboutThisRun.h"
+#include "physicalConstants.h"
+#include "global.h"
+
+using namespace std;
+
+void matrixImplant(OneD &smallMatrix, vec2d &bigMatrix, int index)
+{
+  int i_size = bigMatrix.size();
+
+  for (int i=0; i<i_size; i++)
+    {
+      bigMatrix[i][index] = smallMatrix[i];
+    }
+  
+}

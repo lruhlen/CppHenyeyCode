@@ -1,0 +1,7 @@
+#IFNDEF PAUSE_H
+#DEFINE PAUSE_H
+using namespace std;
+
+void pause();
+
+#ENDIF

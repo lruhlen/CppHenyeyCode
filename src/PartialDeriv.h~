@@ -1,0 +1,9 @@
+#ifndef PARTIALDERIV_H
+#define PARTIALDERIV_H
+
+
+vector<double> PartialDeriv(vector<double> (*funct)(bundle &vars), bundle &vars, int OneToVary );
+
+
+
+#endif

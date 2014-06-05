@@ -1,0 +1,8 @@
+#ifndef G2J_H
+#define G2J_H
+using namespace std;
+
+
+vector<double> G2J(bundle &vars);
+
+#endif

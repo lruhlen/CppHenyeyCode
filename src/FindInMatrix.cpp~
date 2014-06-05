@@ -1,0 +1,30 @@
+#include <iostream>
+#include <vector>
+#include <math.h>
+#include "global.h"
+using namespace std;
+
+vector<vector<int> > FindInMatrix(double val, vec3d &matrix)
+{
+  vector<vector<int> > result; 
+
+  int NumSlices = matrix.size();
+  int NumRows = matrix[0].size();
+  int NumCols = matrix[0][0].size();
+
+  for(int slice =0; slice<NumSlices; slice++)
+    {
+      for(int row = 0; row < NumRows; row++)
+	{
+	  for (int col=0; col < NumCols; col++)
+	    {
+	      if (fabs(max) < fabs(matrix[slice][row][col]))
+		{
+		  max = matrix[slice][row][col];
+		}
+	    }      
+	}
+    }
+
+
+}

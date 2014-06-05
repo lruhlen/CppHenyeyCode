@@ -1,0 +1,153 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <math.h>
+#include <string.h>
+#include "AboutThisRun.h"
+#include "physicalConstants.h"
+#include "global.h"
+#include "printVector.h"
+#include "printMatrix.h"
+#include "matrixTranspose.h"
+#include "dotProduct.h"
+#include "addMatrix.h"
+#include "subtractMatrix.h"
+#include "matrixMultiply.h"
+#include "matrixDivide.h"
+#include "convert_to_vec2d.h"
+#include "convert_from_vec2d.h"
+#include "FindMax.h"
+#include "PartialDeriv.h"
+#include <float.h>
+#include "matrixInvert.h"
+#include "cleanMatrix.h"
+#include "pause_for_user.h"
+using namespace std;
+
+
+void HenyeyPrimeMatrixInversion(struct bundle &vars, vec3d Cprime, vec3d Dprime, vec3d Eprime, vec2d Gprime)
+{
+
+  vec2d TempGprime(iMax,1), TempAprime(iMax,1), TempSum(iMax,1), Tempdxprime(iMax,1);
+  vec2d Aprime(iMax,jMax), TempBprime(iMax,iMax,0), TempCprime(iMax,iMax,0), TempDprime(iMax,iMax,0), TempEprime(iMax,iMax,0);
+  vec2d TempInverseSprime(iMax,iMax,0), TempSprime(iMax,iMax,0), Sum(iMax,jMax);
+  vec2d TempBprimeOld(iMax,iMax,0), TempAprimeOld(iMax,iMax,0);
+
+  vec3d Sprime(iMax,iMax,jMax), Bprime(iMax,iMax,jMax), InverseSprime(iMax,iMax,jMax); 
+
+
+
+  //-----------------------------------------------------------
+  // Forward-bootstrap the A and B values from j=0 to j=jMax-1
+  //-----------------------------------------------------------
+  for (int j=0; j<jMax-1; j++)
+    {
+
+      // Fill the Temp variables, one block at a time
+      for (int i=0; i<iMax; i++)
+	{
+	  TempGprime[i][0] = Gprime[i][j];
+	  
+	  for (int k=0; k<iMax; k++)
+	    {
+	      TempCprime[i][k] = Cprime[i][k][j];
+	      TempDprime[i][k] = Dprime[i][k][j];
+	      TempEprime[i][k] = Eprime[i][k][j];
+
+	    }
+	}
+
+      
+      TempSprime = matrixMultiply(TempCprime,TempBprimeOld);
+      TempSprime = addMatrix(TempSprime,TempDprime);
+      
+      TempInverseSprime = matrixInvert(TempSprime);
+     
+      TempSum = matrixMultiply(TempCprime,TempAprimeOld);
+      TempSum = addMatrix(TempGprime,TempSum);
+	  
+      TempAprime = matrixMultiply(TempInverseSprime,TempSum);
+      TempAprime = matrixMultiply(-1.0,TempAprime);
+
+      TempBprime = matrixMultiply(TempInverseSprime,TempEprime);
+      TempBprime = matrixMultiply(-1.0,TempBprime);
+ 
+      
+      // Insert the Temp A, B, and S values into their full array counterparts 
+      for (int i=0; i<iMax; i++)
+	{
+	  Aprime[i][j] = TempAprime[i][0];
+	  Sum[i][j] = TempSum[i][0];
+	  
+	  for (int k=0; k<iMax; k++)
+	    {
+	      Bprime[i][k][j] = TempBprime[i][k];
+	      Sprime[i][k][j] = TempSprime[i][k];
+	      InverseSprime[i][k][j] = TempInverseSprime[i][k];
+	    }
+	}
+      TempAprimeOld = TempAprime;
+      TempBprimeOld = TempBprime;
+
+    } // End of first loop over the j's
+  
+
+  /*
+    Solve for the dx[i][j=surface] values
+  */   
+  for (int i=0; i<iMax; i++)
+    {
+      TempGprime[i][0] = Gprime[i][jMax-1];
+      
+      for (int k=0; k<iMax; k++)
+	{
+	  TempCprime[i][k] = Cprime[i][k][jMax-1];
+	  TempDprime[i][k] = Dprime[i][k][jMax-1];
+	  TempEprime[i][k] = Eprime[i][k][jMax-1];
+	  
+	}
+    }
+
+ 
+  vec2d temp1 = matrixMultiply(TempCprime,TempAprimeOld); 
+  temp1 = addMatrix(temp1,TempGprime);
+    
+  vec2d temp2 = matrixMultiply(TempCprime,TempBprimeOld);
+  temp2 = addMatrix(temp2,TempDprime);
+  temp2 = matrixInvert(temp2);
+  temp2 = matrixMultiply(temp2,temp1);
+  temp2 = matrixMultiply(-1.0,temp2);
+  
+  for (int i=0; i<iMax; i++)
+    {
+      vars.dxprime[i][jMax-1] = temp2[i][0];
+    }
+
+  /*
+    Now, work backwards from j=jMax-2 to j=0,
+    solving for all of the dx[i][j]'s.
+   */
+
+  for (int j=jMax-1; j>0; j--)
+    {
+      for (int i=0; i<iMax; i++)
+	{
+	  vars.dxprime[i][j-1] = 0;
+	 
+	  for (int k=0; k<iMax; k++)
+	    {
+	      vars.dxprime[i][j-1] += Bprime[i][k][j-1]*vars.dxprime[i][j];
+	    }	
+	  vars.dxprime[i][j-1] += Aprime[i][j-1];
+	}
+
+
+    
+    }
+    
+}
+
+  
+
+

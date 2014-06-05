@@ -1,0 +1,25 @@
+#include <string.h>
+#include "AboutThisRun.h"
+#include "physicalConstants.h"
+#include "global.h"
+#include "printVector.h"
+#include "printMatrix.h"
+#include "flattenMatrix.h"
+#include "unflattenMatrix.h"
+#include "pause_for_user.h"
+
+using namespace std;
+
+OneD matrixExtract(vec2d &bigMatrix, int index)
+{
+  int size = bigMatrix.size();
+  
+  OneD result(size,0);
+
+  for (int x=0; x<size; x++)
+    {
+      result[x] = bigMatrix[x][index]
+    }
+
+  return result;
+}

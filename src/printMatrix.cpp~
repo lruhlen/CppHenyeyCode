@@ -1,0 +1,144 @@
+#include <iostream>
+#include <vector>
+#include "printVector.h"
+#include "global.h"
+using namespace std;
+
+ void printMatrix(struct vec3d &matrix)
+ {
+
+   int slice = int(matrix.size());
+   int rows = int(matrix[0].size());
+ 
+   for (int s = 0; s < slice; s++)
+     {
+       for (int r = 0; r < rows; r++)
+ 	{
+ 	  printVector(matrix[s][r]);
+ 	}
+       cout<<endl;
+     }
+ 
+ }
+ 
+
+void printMatrix(vector<vector <double> > &matrix)
+{
+  vector<double> vec = matrix[0];
+
+       int rows = int(matrix.size());
+  
+
+  for( int r = 0; r < rows; r++){
+    printVector(matrix[r]);
+  }
+  cout<<endl;
+}
+
+void printMatrix(vector<vector <int> > &matrix)
+{
+  vector<int> vec = matrix[0];
+
+       int rows = int(matrix.size());
+    int cols = int(matrix[0].size());
+  
+
+  for( int r = 0; r < rows; r++){
+    printVector(matrix[r]);
+  }
+  cout<<endl;
+}
+
+void printMatrix(vector<vector <float> > &matrix)
+{
+  vector<float> vec = matrix[0];
+
+
+    int rows = int(matrix.size());
+
+  for( int r = 0; r < rows; r++){
+    printVector(matrix[r]);
+  }
+  cout<<endl;
+}
+
+void printMatrix(vector<vector <char> > &matrix)
+{
+  vector<char> vec = matrix[0];
+
+
+    int rows = int(matrix.size());
+  
+  for( int r = 0; r < rows; r++){
+    printVector(matrix[r]);
+  }
+  cout<<endl;
+}
+
+void printMatrix(vector<vector <long> > &matrix)
+{
+  vector<long> vec = matrix[0];
+
+ 
+    int rows = int(matrix.size());
+ 
+  for( int r = 0; r < rows; r++){
+      printVector(matrix[r]);
+  
+  }
+  cout<<endl;
+}
+
+
+void printMatrix(vector<vector <bool> > &matrix)
+{
+  vector<bool> vec = matrix[0];
+
+ 
+    int rows = int(matrix.size());
+ 
+  for( int r = 0; r < rows; r++){
+         printVector(matrix[r]);
+ 
+  }
+  cout<<endl;
+}
+//// Also make printMatrix able to just print out vectors
+void printMatrix( vector<double> &vec){
+  printVector(vec);
+}
+void printMatrix( vector<int> &vec){
+  printVector(vec);
+}
+void printMatrix( vector<float> &vec){
+  printVector(vec);
+}
+void printMatrix( vector<char> &vec){
+  printVector(vec);
+}
+void printMatrix( vector<long> &vec){
+  printVector(vec);
+}
+void printMatrix( vector<bool> &vec){
+  printVector(vec);
+}
+
+
+void printMatrix( double &matrix){
+  cout<<matrix<<endl;
+}
+void printMatrix( int &matrix){
+  cout<<matrix<<endl;
+}
+void printMatrix( float &matrix){
+  cout<<matrix<<endl;
+}
+void printMatrix( char &matrix){
+  cout<<matrix<<endl;
+}
+void printMatrix( long &matrix){
+  cout<<matrix<<endl;
+}
+void printMatrix( bool &matrix){
+  cout<<matrix<<endl;
+}

@@ -1,0 +1,33 @@
+#ifndef HENYEYPRIMEMATRIXINVERSION_H
+#define HENYEYPRIMEMATRIXINVERSION_H
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <math.h>
+#include <string.h>
+#include "AboutThisRun.h"
+#include "physicalConstants.h"
+#include "global.h"
+#include "printVector.h"
+#include "printMatrix.h"
+#include "matrixTranspose.h"
+#include "dotProduct.h"
+#include "addMatrix.h"
+#include "subtractMatrix.h"
+#include "matrixMultiply.h"
+#include "convert_to_vec2d.h"
+#include "convert_from_vec2d.h"
+#include "FindMax.h"
+#include "PartialDeriv.h"
+#include <float.h>
+#include "matrixInvert.h"
+#include "cleanMatrix.h"
+#include "pause_for_user.h"
+
+using namespace std;
+void HenyeyPrimeMatrixInversion(struct bundle &vars, vec3d Cprime, vec3d Dprime, vec3d Eprime, vec2d Gprime);
+
+
+#endif

@@ -1,0 +1,10 @@
+#ifndef PRINTMATRIXTOFILE_H
+#define PRINTMATRIXTOFILE_H
+
+#include <iostream>
+#include <vector>
+#include <stdio.h>
+#include "global.h"
+using namespace std;
+
+#endif

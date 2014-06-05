@@ -1,0 +1,14 @@
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fstream>
+#include <sstream>
+using namespace std;
+
+void pause()
+{
+  char continueHit;
+  cout<<"Press return to continue:";
+  cin>>continueHit;
+
+}

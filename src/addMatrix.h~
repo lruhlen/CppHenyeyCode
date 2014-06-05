@@ -1,0 +1,18 @@
+#ifndef ADDMATRIX_H
+#define ADDMATRIX_H
+#include "global.h"
+using namespace std;
+
+struct vec3d addMatrix(struct vec3d &matrixA, struct vec3d &matrixB);
+
+struct vec2d addMatrix(struct vec2d &matrixA, struct vec2d &matrixB);
+
+struct vec2d addMatrix(struct vec2d &matrixA, vector<vector<double> > &matrixB);
+
+struct vec2d addMatrix(vector<vector<double> > &matrixA, struct vec2d &matrixB);
+
+vector<vector<double> > addMatrix(vector<vector<double> > &matrixA, vector<vector<double> > &matrixB );
+
+vector<double> addMatrix(vector<double> &matrixA, vector<double> &matrixB );
+
+#endif

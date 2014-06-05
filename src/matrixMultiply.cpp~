@@ -1,0 +1,311 @@
+#include <iostream>
+#include <vector>
+#include "dotProduct.h"
+#include "matrixTranspose.h"
+#include "printVector.h"
+#include "global.h"
+using namespace std;
+
+
+///// Multiplying two multi-dimensional matrices 
+struct vec2d matrixMultiply(struct vec2d &matrixA, struct vec2d &matrixB)
+{
+  int A_rows = matrixA.size();
+  int A_cols = matrixA[0].size();
+  int B_rows = matrixB.size();
+  int B_cols = matrixB[0].size();
+
+  vec2d result(A_rows,B_cols);
+
+  vec2d B_Transpose(B_cols,B_rows);
+
+  B_Transpose= matrixTranspose(matrixB);
+
+ for (int row=0; row < A_rows; row++)
+     {
+       for (int col=0; col < B_cols; col++)
+	 {
+	   result[row][col] = dotProduct(matrixA[row],B_Transpose[col]);
+	 }
+   }
+
+  return result;
+}
+
+
+vector< vector<double> > matrixMultiply(vector< vector<double> > &matrixA, vector< vector<double> > &matrixB)
+{
+
+  int A_rows = matrixA.size();
+  int A_cols = matrixA[0].size();
+  int B_rows = matrixB.size();
+  int B_cols = matrixB[0].size();
+
+   vector< vector<double> > result(A_rows,B_cols);
+
+   vector< vector<double> >  B_Transpose(B_cols,B_rows);
+
+   B_Transpose= matrixTranspose(matrixB);
+
+   for (int row=0; row < A_rows; row++)
+     {
+       for (int col=0; col < B_cols; col++)
+	 {
+	   result[row][col] = dotProduct(matrixA[row],B_Transpose[col]);
+	 }
+   }
+  return result;
+}
+
+
+OneD matrixMultiply(OneD &vectorA, struct vec2d &matrixB)
+{
+  //   int A_rows = 1;
+  //   int A_cols = vectorA.size();
+   int B_rows = matrixB.size();
+   int B_cols = matrixB[0].size();
+
+   OneD result(B_cols);
+   vec2d B_Transpose(B_cols,B_rows);
+
+   B_Transpose= matrixTranspose(matrixB);
+
+
+      for (int col=0; col < B_cols; col++)
+	{
+	  result[col] = dotProduct(vectorA,B_Transpose[col]);
+	}
+
+  return result;
+}
+
+
+vector< vector<double> > matrixMultiply( vector<double> &vectorA, vector< vector<double> > &matrixB)
+{
+   int A_rows = 1;
+   int A_cols = vectorA.size();
+   int B_rows = matrixB.size();
+   int B_cols = matrixB[0].size();
+
+
+   vector< vector<double> > result(A_rows,B_cols);
+
+
+   vector< vector<double> >  B_Transpose(B_cols,B_rows);
+   B_Transpose= matrixTranspose(matrixB);
+
+
+   for (int row=0; row < A_rows; row++)
+     {
+       for (int col=0; col < B_cols; col++)
+	 {
+	   result[row][col] = dotProduct(vectorA,B_Transpose[col]);
+	 }
+   }
+  return result;
+}
+
+OneD matrixMultiply(struct vec2d &matrixA, OneD &vectorB)
+{
+  int A_rows = matrixA.size();
+  int A_cols = matrixA[0].size();
+  //  int B_cols = 1;
+  //  int B_rows = vectorB.size();
+
+  OneD result(A_rows) ;
+ 
+  for (int row=0; row < A_rows; row++)
+    {
+ 	  result[row] = dotProduct(matrixA[row],vectorB);
+    }
+
+  return result; 
+}
+
+vector< vector<double> >  matrixMultiply( vector< vector<double> > &matrixA, vector<double>  &vectorB)
+{
+
+  int A_rows = matrixA.size();
+  int A_cols = matrixA[0].size();
+  int B_cols = 1;
+  int B_rows = vectorB.size();
+
+   
+  vector< vector<double> > result(A_rows,B_cols) ;
+   
+
+   for (int row=0; row < A_rows; row++)
+     {
+       for (int col=0; col < B_cols; col++)
+	 {
+	   result[row][col] = dotProduct(matrixA[row],vectorB);
+	 }
+   }
+  return result;
+   
+}
+
+/// Multiplying a matrix by a constant scaler value
+
+
+struct vec3d matrixMultiply(double constA, struct vec3d &matrixB)
+{
+  int B_rows = matrixB.size();
+  int B_cols = matrixB[0].size();
+  int B_slices = matrixB[0][0].size();
+
+  vec3d result(B_rows,B_cols,B_slices);
+
+  for (int row=0; row < B_rows; row++)
+    {
+      for (int col=0; col < B_cols; col++)
+	{
+	  for (int slice=0; slice < B_slices; slice++)
+	    {
+	      result[row][col][slice] = constA * matrixB[row][col][slice];
+	    }
+	}
+    }
+
+  return result;
+  
+}
+
+struct vec2d matrixMultiply(double constA, struct vec2d &matrixB)
+{
+  int B_rows = matrixB.size();
+  int B_cols = matrixB[0].size();
+
+  vec2d result(B_rows,B_cols);
+
+  for (int row=0; row < B_rows; row++)
+    {
+      for (int col=0; col < B_cols; col++)
+	{
+	  result[row][col] = constA * matrixB[row][col];
+	}
+    }
+
+  return result;
+  
+}
+
+
+vector< vector<double> > matrixMultiply(double constA, vector< vector<double> > &matrixB)
+{ 
+  int B_rows = matrixB.size();
+  int B_cols = matrixB[0].size();
+
+  vector< vector<double> > result(B_rows,B_cols);
+
+
+   for (int row=0; row < B_rows; row++)
+     {
+       for (int col=0; col < B_cols; col++)
+	 {
+	   result[row][col] = constA * matrixB[row][col];
+	 }
+   }
+
+  return result;
+   
+}
+/// Also multiplying a matrix by a constant scaler value
+struct vec3d matrixMultiply(struct vec3d &matrixB, double constA)
+{
+  int B_rows = matrixB.size();
+  int B_cols = matrixB[0].size();
+  int B_slices = matrixB[0][0].size();
+
+  vec3d result(B_rows,B_cols,B_slices);
+
+  for (int row=0; row < B_rows; row++)
+    {
+      for (int col=0; col < B_cols; col++)
+	{
+	  for (int slice=0; slice < B_slices; slice++)
+	    {
+	      result[row][col][slice] = constA * matrixB[row][col][slice];
+	    }
+	}
+    }
+
+  return result;
+  
+}
+
+struct vec2d matrixMultiply(struct vec2d &matrixB, double constA)
+{
+  int B_rows = matrixB.size();
+  int B_cols = matrixB[0].size();
+
+  vec2d result(B_rows,B_cols);
+
+
+   for (int row=0; row < B_rows; row++)
+     {
+       for (int col=0; col < B_cols; col++)
+	 {
+	   result[row][col] = constA * matrixB[row][col];
+	 }
+   }
+
+  return result;
+ 
+}
+
+vector< vector<double> > matrixMultiply(vector< vector<double> > &matrixB, double constA)
+{
+  int B_rows = matrixB.size();
+  int B_cols = matrixB[0].size();
+
+  vector< vector<double> > result(B_rows,B_cols);
+
+
+   for (int row=0; row < B_rows; row++)
+     {
+       for (int col=0; col < B_cols; col++)
+	 {
+	   result[row][col] = constA * matrixB[row][col];
+	 }
+   }
+
+  return result;
+   
+}
+
+
+vector<double> matrixMultiply(double constA, vector<double> &matrixB)
+{
+  int B_cols = matrixB.size();
+
+  vector<double>  result(B_cols);
+
+       for (int col=0; col < B_cols; col++)
+	 {
+	   result[col] = constA * matrixB[col];
+	 }
+
+
+  return result;
+   
+}
+
+
+/// Also multiplying a vector by a constant scaler value
+ vector<double>  matrixMultiply( vector<double> &matrixB, double constA)
+ {
+   int B_cols = matrixB.size();
+ 
+ 
+   vector<double>  result(B_cols);
+ 
+        for (int col=0; col < B_cols; col++)
+ 	 {
+ 	   result[col] = constA * matrixB[col];
+ 	 }
+ 
+ 
+   return result;
+    
+ }
